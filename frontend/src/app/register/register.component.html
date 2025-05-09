@@ -1,0 +1,26 @@
+<h2>Registro INCRIBLE</h2>
+<form (ngSubmit)="registrar()">
+  <input type="text" placeholder="RUT" [(ngModel)]="rut" name="rut" />
+  <input type="text" placeholder="Nombre" [(ngModel)]="nombre" name="nombre" />
+  <input
+    type="text"
+    placeholder="Apellido Paterno"
+    [(ngModel)]="apellido1"
+    name="apellido1"
+  />
+  <input
+    type="text"
+    placeholder="Apellido Materno"
+    [(ngModel)]="apellido2"
+    name="apellido2"
+  />
+  <input type="email" placeholder="Correo" [(ngModel)]="correo" name="correo" />
+  <input
+    type="password"
+    placeholder="Contraseña"
+    [(ngModel)]="contrasena"
+    name="contrasena"
+  />
+  <button type="submit">Registrar</button>
+</form>
+<a routerLink="/login">Volver al login</a>

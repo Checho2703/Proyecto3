@@ -1,0 +1,12 @@
+<h2>Login INCRIBLE</h2>
+<form (ngSubmit)="login()">
+  <input type="text" placeholder="RUT" [(ngModel)]="rut" name="rut" />
+  <input
+    type="password"
+    placeholder="Contraseña"
+    [(ngModel)]="contrasena"
+    name="contrasena"
+  />
+  <button type="submit">Ingresar</button>
+</form>
+<a routerLink="/register">Registrarse</a>
