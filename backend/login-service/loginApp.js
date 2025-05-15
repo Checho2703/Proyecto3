@@ -25,7 +25,7 @@ app.post("/api/register", (req, res) => {
   } = req.body;
 
   const sql = `
-    INSERT INTO users (rut, nombre, apellido1, apellido2, correo, contrasena, tipo_usuario)
+    INSERT INTO usuario (rut, nombre, apellido1, apellido2, correo, contrasena, tipo_usuario)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
@@ -47,7 +47,7 @@ app.post("/api/register", (req, res) => {
 app.post("/api/login", (req, res) => {
   const { correo, contrasena } = req.body;
 
-  const sql = "SELECT * FROM users WHERE correo = ?";
+  const sql = "SELECT * FROM usuario WHERE correo = ?";
 
   db.query(sql, [correo], (err, results) => {
     if (err)
