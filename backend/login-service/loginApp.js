@@ -4,20 +4,31 @@ const mysql = require("mysql2");
 const app = express();
 app.use(express.json());
 
-const connection = mysql.createConnection({
-  host: process.env.DB_HOST, // db
-  user: process.env.DB_USER, // root
-  password: process.env.DB_PASSWORD, // 1234
-  database: process.env.DB_NAME, // db_main
-});
+let connection;
 
-connection.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err.stack);
-    return;
-  }
-  console.log("Connected to database.");
-});
+function connectWithRetry() {
+  //La base de datos demora en cargar asi q se le da un tiempo de espera
+  connection = mysql.createConnection({
+    host: process.env.DB_HOST, // 'db'
+    user: process.env.DB_USER, // 'root'
+    password: process.env.DB_PASSWORD, // '1234'
+    database: process.env.DB_NAME, // 'db_main'
+  });
+
+  connection.connect((err) => {
+    if (err) {
+      console.error(
+        "❌ Error al conectar con la BD. Reintentando en 5s...",
+        err.message
+      );
+      setTimeout(connectWithRetry, 5000); // Reintenta en 5 segundos
+    } else {
+      console.log("✅ Conexión establecida con la base de datos.");
+    }
+  });
+}
+
+connectWithRetry();
 
 // Registro de usuario
 app.post("/register", (req, res) => {
