@@ -11,6 +11,8 @@ services:
       - db_data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - red_proyecto3
 
   login-service:
     build: ./backend/login-service
@@ -24,6 +26,8 @@ services:
       - DB_NAME=db_main
     depends_on:
       - db
+    networks:
+      - red_proyecto3
 
   frontend:
     build: ./frontend
@@ -32,6 +36,12 @@ services:
       - "4200:80"
     depends_on:
       - login-service
+    networks:
+      - red_proyecto3
 
 volumes:
   db_data:
+
+networks:
+  red_proyecto3:
+    driver: bridge
