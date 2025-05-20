@@ -1,11 +1,15 @@
 services:
-  frontend:
-    build: ./frontend
-    container_name: angular_frontend
+  db:
+    image: mysql:8
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: db_main
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "4200:80"
-    depends_on:
-      - login-service
+      - "3306:3306"
 
   login-service:
     build: ./backend/login-service
@@ -16,22 +20,17 @@ services:
       - DB_HOST=db
       - DB_USER=root
       - DB_PASSWORD=1234
-      - DB_NAME=usuarios
+      - DB_NAME=db_main
     depends_on:
       - db
 
-  db:
-    image: mysql:8
-    container_name: mysql_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: usuarios
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+  frontend:
+    build: ./frontend
+    container_name: angular_frontend
     ports:
-      - "3306:3306"
+      - "4200:80"
+    depends_on:
+      - login-service
 
 volumes:
   db_data:

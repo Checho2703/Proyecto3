@@ -4,16 +4,23 @@ const mysql = require("mysql2");
 const app = express();
 app.use(express.json());
 
-// Configuración de conexión MySQL
-const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "user",
-  password: process.env.DB_PASSWORD || "password",
-  database: process.env.DB_NAME || "main_db",
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST, // db
+  user: process.env.DB_USER, // root
+  password: process.env.DB_PASSWORD, // 1234
+  database: process.env.DB_NAME, // db_main
+});
+
+connection.connect((err) => {
+  if (err) {
+    console.error("Database connection failed:", err.stack);
+    return;
+  }
+  console.log("Connected to database.");
 });
 
 // Registro de usuario
-app.post("/api/register", (req, res) => {
+app.post("/register", (req, res) => {
   const {
     rut,
     nombre,
@@ -29,7 +36,7 @@ app.post("/api/register", (req, res) => {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(
+  connection.query(
     sql,
     [rut, nombre, apellido1, apellido2, correo, contrasena, tipo_usuario],
     (err) => {
@@ -44,12 +51,12 @@ app.post("/api/register", (req, res) => {
 });
 
 // Inicio de sesión
-app.post("/api/login", (req, res) => {
+app.post("/login", (req, res) => {
   const { correo, contrasena } = req.body;
 
   const sql = "SELECT * FROM usuario WHERE correo = ?";
 
-  db.query(sql, [correo], (err, results) => {
+  connection.query(sql, [correo], (err, results) => {
     if (err)
       return res.status(500).json({ error: "Error interno del servidor" });
 
@@ -72,6 +79,23 @@ app.post("/api/login", (req, res) => {
         tipo_usuario: user.tipo_usuario,
       },
     });
+  });
+});
+
+app.get("/", (req, res) => {
+  res.send("Funciona");
+});
+
+app.get("/usuario", (req, res) => {
+  const sql = "SELECT * FROM usuario";
+
+  connection.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Error al obtener usuarios" });
+    }
+
+    res.json(results);
   });
 });
 
