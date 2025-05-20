@@ -7,8 +7,7 @@ app.use(express.json());
 let connection;
 
 function connectWithRetry() {
-  //La base de datos demora en cargar asi q se le da un tiempo de espera
-  connection = mysql.createConnection({
+  const connection = mysql.createConnection({
     host: process.env.DB_HOST, // 'db'
     user: process.env.DB_USER, // 'root'
     password: process.env.DB_PASSWORD, // '1234'
@@ -17,16 +16,26 @@ function connectWithRetry() {
 
   connection.connect((err) => {
     if (err) {
-      console.error(
-        "❌ Error al conectar con la BD. Reintentando en 5s...",
-        err.message
-      );
-      setTimeout(connectWithRetry, 5000); // Reintenta en 5 segundos
+      console.error("❌ Error al conectar con MySQL:", err.message);
+      setTimeout(connectWithRetry, 5000); // Reintento tras 5 segundos
     } else {
-      console.log("✅ Conexión establecida con la base de datos.");
+      console.log("✅ Conexión exitosa con MySQL");
+      // Exportar la conexión o seguir con la app
+      module.exports = connection;
+    }
+  });
+
+  connection.on("error", (err) => {
+    if (err.code === "PROTOCOL_CONNECTION_LOST") {
+      console.warn("⚠️ Conexión perdida. Reintentando...");
+      connectWithRetry();
+    } else {
+      throw err;
     }
   });
 }
+
+connectWithRetry();
 
 connectWithRetry();
 
