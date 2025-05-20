@@ -2,7 +2,8 @@ const express = require("express");
 const mysql = require("mysql2");
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); //Json
+app.use(express.urlencoded({ extended: true })); //Formularios
 
 let connection;
 
@@ -32,33 +33,32 @@ connectWithRetry();
 
 // Registro de usuario
 app.post("/register", (req, res) => {
-  const {
+  const { rut, nombre, apellido1, apellido2, correo, contrasena } = req.body;
+
+  if (!rut || !nombre || !apellido1 || !correo || !contrasena) {
+    return res.status(400).json({ error: "Faltan campos obligatorios" });
+  }
+
+  const usuario = {
     rut,
     nombre,
     apellido1,
-    apellido2,
+    apellido2: apellido2 || null,
     correo,
     contrasena,
-    tipo_usuario,
-  } = req.body;
+    tipo_usuario: "user",
+  };
 
-  const sql = `
-    INSERT INTO usuario (rut, nombre, apellido1, apellido2, correo, contrasena, tipo_usuario)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-
-  connection.query(
-    sql,
-    [rut, nombre, apellido1, apellido2, correo, contrasena, tipo_usuario],
-    (err) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Error al registrar usuario" });
-      }
-
-      res.status(201).json({ message: "Usuario registrado correctamente" });
+  connection.query("INSERT INTO usuario SET ?", usuario, (error, results) => {
+    if (error) {
+      console.error("Error en la base de datos:", error);
+      return res.status(500).json({ error: "Error al registrar usuario" });
     }
-  );
+    res.status(201).json({
+      message: "Usuario registrado",
+      id: results.insertId,
+    });
+  });
 });
 
 // Inicio de sesión
