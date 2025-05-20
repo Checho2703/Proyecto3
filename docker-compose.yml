@@ -4,6 +4,7 @@ services:
     container_name: mysql_db
     restart: always
     environment:
+      MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: db_main
     volumes:
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -21,10 +22,10 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASSWORD=1234
-      - DB_NAME=db_main
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
     depends_on:
       - db
     networks:
