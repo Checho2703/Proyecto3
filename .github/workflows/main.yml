@@ -26,6 +26,7 @@ jobs:
   # Pruebas de integración con todos los servicios dockerizados
   docker-up-test:
     runs-on: ubuntu-latest
+    needs: unit-test-login-service
 
     steps:
       - name: Clonar repositorio
