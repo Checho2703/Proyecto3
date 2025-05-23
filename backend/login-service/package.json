@@ -1,10 +1,10 @@
 {
   "name": "login-service",
   "version": "1.0.0",
-  "main": "loginApp.js",
+  "main": "index.js",
   "scripts": {
     "start": "node loginApp.js",
-    "test": "echo \"Error: test temp\" && exit 0"
+    "test": "jest"
   },
   "dependencies": {
     "express": "^5.1.0",
@@ -13,5 +13,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.4" 
+  },
   "description": ""
 }

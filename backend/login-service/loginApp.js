@@ -7,9 +7,11 @@ app.use(express.urlencoded({ extended: true }));
 
 let connection;
 
+app.set("db", connection); 
+
 function connectWithRetry() {
   connection = mysql.createConnection({
-    host: process.env.DB_HOST,     // Ej: 'db'
+    host: process.env.DB_HOST || 'db', // Ej: 'db'
     user: process.env.DB_USER,     // Ej: 'root'
     password: process.env.DB_PASSWORD, // Ej: '1234'
     database: process.env.DB_NAME  // Ej: 'db_main'
@@ -21,11 +23,14 @@ function connectWithRetry() {
       setTimeout(connectWithRetry, 5000);
     } else {
       console.log("✅ Conexión establecida con la base de datos.");
+      app.set("db", connection);
     }
   });
 }
 
-connectWithRetry();
+if (process.env.NODE_ENV !== "test") {
+  connectWithRetry();
+}
 
 // Registro de usuario
 app.post("/register", (req, res) => {
@@ -49,8 +54,13 @@ app.post("/register", (req, res) => {
     ID_establecimiento: id_establecimiento || null
   };
 
+  const db = app.get("db"); // ← Aquí se obtiene la conexión
+  if (!db) {
+    return res.status(500).json({ error: "Base de datos no disponible" });
+  }
+
   const query = "INSERT INTO Usuario SET ?";
-  connection.query(query, usuario, (error, results) => {
+  db.query(query, usuario, (error, results) => {
     if (error) {
       console.error("Error en la base de datos:", error);
       return res.status(500).json({ error: "Error al registrar usuario" });
@@ -67,7 +77,13 @@ app.post("/login", (req, res) => {
   const { correo, contrasena } = req.body;
 
   const sql = "SELECT * FROM Usuario WHERE Correo = ?";
-  connection.query(sql, [correo], (err, results) => {
+
+  const db = app.get("db"); // ← Aquí se obtiene la conexión
+  if (!db) {
+    return res.status(500).json({ error: "Base de datos no disponible" });
+  }
+
+  db.query(sql, [correo], (err, results) => {
     if (err) return res.status(500).json({ error: "Error interno del servidor" });
 
     if (results.length === 0) {
@@ -112,6 +128,4 @@ app.get("/", (req, res) => {
   res.send("Funciona");
 });
 
-app.listen(3000, () => {
-  console.log("Login service running on port 3000");
-});
+module.exports = app;
