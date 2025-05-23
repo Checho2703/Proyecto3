@@ -7,19 +7,22 @@ app.use(express.urlencoded({ extended: true }));
 
 let connection;
 
-app.set("db", connection); 
+app.set("db", connection);
 
 function connectWithRetry() {
   connection = mysql.createConnection({
-    host: process.env.DB_HOST || 'db', // Ej: 'db'
-    user: process.env.DB_USER,     // Ej: 'root'
-    password: process.env.DB_PASSWORD, // Ej: '1234'
-    database: process.env.DB_NAME  // Ej: 'db_main'
+    host: process.env.DB_HOST || "db",
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   });
 
   connection.connect((err) => {
     if (err) {
-      console.error("❌ Error al conectar con la BD. Reintentando en 5s...", err.message);
+      console.error(
+        "❌ Error al conectar con la BD. Reintentando en 5s...",
+        err.message
+      );
       setTimeout(connectWithRetry, 5000);
     } else {
       console.log("✅ Conexión establecida con la base de datos.");
@@ -34,7 +37,19 @@ if (process.env.NODE_ENV !== "test") {
 
 // Registro de usuario
 app.post("/register", (req, res) => {
-  const { rut, nombres, apellido_paterno, apellido_materno, correo, contrasena, telefono, estado, fecha_nac, id_rol, id_establecimiento } = req.body;
+  const {
+    rut,
+    nombres,
+    apellido_paterno,
+    apellido_materno,
+    correo,
+    contrasena,
+    telefono,
+    estado,
+    fecha_nac,
+    id_rol,
+    id_establecimiento,
+  } = req.body;
 
   if (!rut || !nombres || !apellido_paterno || !correo || !contrasena) {
     return res.status(400).json({ error: "Faltan campos obligatorios" });
@@ -51,10 +66,10 @@ app.post("/register", (req, res) => {
     Estado: estado || "Activo",
     Fecha_nac: fecha_nac || null,
     ID_rol: id_rol || null,
-    ID_establecimiento: id_establecimiento || null
+    ID_establecimiento: id_establecimiento || null,
   };
 
-  const db = app.get("db"); // ← Aquí se obtiene la conexión
+  const db = app.get("db");
   if (!db) {
     return res.status(500).json({ error: "Base de datos no disponible" });
   }
@@ -67,7 +82,7 @@ app.post("/register", (req, res) => {
     }
     res.status(201).json({
       message: "Usuario registrado",
-      id: results.insertId
+      id: results.insertId,
     });
   });
 });
@@ -78,13 +93,14 @@ app.post("/login", (req, res) => {
 
   const sql = "SELECT * FROM Usuario WHERE Correo = ?";
 
-  const db = app.get("db"); // ← Aquí se obtiene la conexión
+  const db = app.get("db");
   if (!db) {
     return res.status(500).json({ error: "Base de datos no disponible" });
   }
 
   db.query(sql, [correo], (err, results) => {
-    if (err) return res.status(500).json({ error: "Error interno del servidor" });
+    if (err)
+      return res.status(500).json({ error: "Error interno del servidor" });
 
     if (results.length === 0) {
       return res.status(401).json({ error: "Usuario no encontrado" });
@@ -103,17 +119,17 @@ app.post("/login", (req, res) => {
         rut: user.Rut,
         nombre: user.Nombres,
         id_rol: user.ID_rol,
-        id_establecimiento: user.ID_establecimiento
-      }
+        id_establecimiento: user.ID_establecimiento,
+      },
     });
   });
 });
 
-// Obtener todos los usuarios
 app.get("/usuario", (req, res) => {
+  const db = app.get("db");
   const sql = "SELECT * FROM Usuario";
 
-  connection.query(sql, (err, results) => {
+  db.query(sql, (err, results) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Error al obtener usuarios" });
@@ -123,7 +139,6 @@ app.get("/usuario", (req, res) => {
   });
 });
 
-// Test básico
 app.get("/", (req, res) => {
   res.send("Funciona");
 });
