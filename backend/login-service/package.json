@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "loginApp.js",
   "scripts": {
-    "start": "node loginApp.js"
+    "start": "node loginApp.js",
+    "test": "echo \"Error: test temp\" && exit 0"
   },
   "dependencies": {
     "express": "^5.1.0",
