@@ -5,7 +5,7 @@ const mockQuery = jest.fn();
 
 beforeEach(() => {
     mockQuery.mockReset();
-  app.set('db', { query: mockQuery }); // 👈 asegúrate de hacer esto en cada test
+    app.set('db', { query: mockQuery });
 });
 
 test('debe registrar un usuario exitosamente', async () => {
@@ -15,13 +15,13 @@ test('debe registrar un usuario exitosamente', async () => {
 
     const res = await request(app).post('/register').send({
     rut: '12345678-9',
-    nombre: 'Ana',
-    apellido1: 'Gómez',
+    nombres: 'Ana',
+    apellido_paterno: 'Gómez',
     correo: 'ana@example.com',
     contrasena: '1234'
     });
 
-  console.log(res.body); // 👈 ayuda para debug si sigue fallando
+    console.log(res.body);
 
     expect(res.status).toBe(201);
     expect(res.body.message).toBe('Usuario registrado');
