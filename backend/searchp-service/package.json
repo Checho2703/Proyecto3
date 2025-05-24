@@ -1,9 +1,9 @@
 {
-  "name": "login-service",
+  "name": "search-service",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node loginApp.js",
+    "start": "node searchApp.js",
     "test": "jest"
   },
   "dependencies": {

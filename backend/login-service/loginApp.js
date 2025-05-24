@@ -125,22 +125,4 @@ app.post("/login", (req, res) => {
   });
 });
 
-app.get("/usuario", (req, res) => {
-  const db = app.get("db");
-  const sql = "SELECT * FROM Usuario";
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Error al obtener usuarios" });
-    }
-
-    res.json(results);
-  });
-});
-
-app.get("/", (req, res) => {
-  res.send("Funciona");
-});
-
 module.exports = app;
