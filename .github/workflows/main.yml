@@ -4,10 +4,10 @@ run-name: Test N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
   push:
     branches:
-      - main
+      - Login
   pull_request:
     branches:
-      - main
+      - Login
 
 jobs:
   #hola
