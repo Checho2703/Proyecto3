@@ -5,9 +5,7 @@ on:
   push:
     branches:
       - Login
-  pull_request:
-    branches:
-      - Login
+
 
 jobs:
   #hola
