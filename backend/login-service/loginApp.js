@@ -143,4 +143,9 @@ app.get("/", (req, res) => {
   res.send("Funciona");
 });
 
+app.get("/status", (req, res) => {
+    res.status(200).json({ status: "OK" });
+});
+
+
 module.exports = app;

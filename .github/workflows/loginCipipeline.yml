@@ -69,3 +69,27 @@ jobs:
 
       - name: Finalizar contenedores
         run: docker compose down
+
+  # Subir imagen a DockerHub
+  docker-push-login-service:
+    runs-on: ubuntu-latest
+    needs: docker-up-test
+    defaults:
+      run:
+        working-directory: backend/login-service
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Iniciar sesión en DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Construir imagen de login-service
+        run: docker build -t ${{ secrets.DOCKER_USER }}/login-service:latest .
+
+      - name: Subir imagen a DockerHub
+        run: docker push ${{ secrets.DOCKER_USER }}/login-service:latest
