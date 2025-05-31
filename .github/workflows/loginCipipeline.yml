@@ -1,4 +1,4 @@
-name: test-proyect
+name: test-login-service
 
 run-name: Test N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
@@ -8,7 +8,6 @@ on:
 
 
 jobs:
-  #hola
   # Tests unitarios  de Backend-Service
   unit-test-login-service:
     runs-on: ubuntu-latest
@@ -62,6 +61,11 @@ jobs:
           echo "❌ No se detectó conexión en los logs"
           docker compose logs
           exit 1
+
+      - name: Ejecutar pruebas de integración
+        run: |
+          docker exec login_service npm install
+          docker exec login_service npm run test:integration
 
       - name: Finalizar contenedores
         run: docker compose down
