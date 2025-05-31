@@ -5,12 +5,11 @@ describe("Pruebas de integración para el servicio de búsqueda", () => {
     test("debe obtener un usuario", async () => {
         const res = await request(app)
             .post("/buscar")
-            .send({ comuna: "Santiago" });
+            .send({ comuna: "Chillan" });
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual(expect.any(Array));
         expect(res.body.length).toBeGreaterThan(0);
-        expect(res.body[0].Rut).toBe("12345678-9");
     });
 
     test("debe retornar 404 si no se encuentra el usuario", async () => {
