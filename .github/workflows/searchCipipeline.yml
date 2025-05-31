@@ -1,15 +1,15 @@
-name: test-proyect
+name: test-searchCipipeline
 
 run-name: Test N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
   push:
     branches:
-      - main
+      - BuscarPersonas
 
 jobs:
   #hola
   # Tests unitarios  de Backend-Service
-  unit-test-login-service:
+  unit-test-searchp-service:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -27,7 +27,7 @@ jobs:
   # Pruebas de integración con todos los servicios dockerizados
   docker-up-test:
     runs-on: ubuntu-latest
-    needs: unit-test-login-service
+    needs: unit-test-searchp-service
 
     steps:
       - name: Clonar repositorio
@@ -47,20 +47,25 @@ jobs:
             sleep 2
           done
 
-      - name: Esperar logs de login-service con conexión establecida
+      - name: Esperar logs de searchp-service con conexión establecida
         run: |
           for i in {1..15}; do
-            logs=$(docker logs login_service 2>&1)
+            logs=$(docker logs searchp-service 2>&1)
             if echo "$logs" | grep -q "Conexión establecida con la base de datos"; then
-              echo "✅ Login-service conectado a la base de datos"
+              echo "✅ searchp-service conectado a la base de datos"
               exit 0
             fi
-            echo "⏳ Esperando conexión desde login-service..."
+            echo "⏳ Esperando conexión desde searchp-service..."
             sleep 2
           done
           echo "❌ No se detectó conexión en los logs"
           docker compose logs
           exit 1
+
+      - name: Ejecutar pruebas de integración
+        run: |
+          docker exec searchp-service npm install
+          docker exec searchp-service npm test:integration
 
       - name: Finalizar contenedores
         run: docker compose down
