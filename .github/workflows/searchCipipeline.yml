@@ -1,6 +1,6 @@
 name: test-searchCipipeline
 
-run-name: Test N.º${{ github.run_number }} hecho por ${{ github.actor }}
+run-name: Test searchp N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
   push:
     branches:
