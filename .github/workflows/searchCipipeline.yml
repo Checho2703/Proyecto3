@@ -51,7 +51,7 @@ jobs:
         run: |
           for i in {1..15}; do
             logs=$(docker logs searchp-service 2>&1)
-            if echo "$logs" | grep -q "Conexión establecida con la base de datos"; then
+            if echo "$logs" | grep -q "✅ Conexión establecida con la base de datos."; then
               echo "✅ searchp-service conectado a la base de datos"
               exit 0
             fi
