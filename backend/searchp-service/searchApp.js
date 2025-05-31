@@ -32,7 +32,6 @@ if (process.env.NODE_ENV !== "test") {
   connectWithRetry();
 }
 
-// Ruta para búsqueda avanzada
 app.post("/buscar", async (req, res) => {
   try {
     const db = req.app.locals.db;
@@ -42,6 +41,13 @@ app.post("/buscar", async (req, res) => {
 
     const { comuna, colegio, curso, asignatura, rut } = req.body;
 
+    //Validación obligatoria de los campos a ingresar
+    if (!comuna && !colegio && !curso && !asignatura && !rut) {
+      return res
+        .status(400)
+        .json({ error: "Debe proporcionar al menos un criterio de búsqueda." });
+    }
+
     let query = `
       SELECT 
         U.ID_usuario,
@@ -50,22 +56,24 @@ app.post("/buscar", async (req, res) => {
         U.Apellido_Paterno,
         U.Apellido_Materno,
         U.Correo,
+        U.Telefono,
+        U.Estado,
+        U.Fecha_nac,
+        U.Tipo_usuario,
+        R.Nombre_rol,
         E.Nombre AS Establecimiento,
         E.Comuna,
         C.Nombre_curso,
         A.Nombre AS Asignatura
       FROM Usuario U
+      LEFT JOIN Rol_usuario R ON U.ID_rol = R.ID_rol
       LEFT JOIN Establecimiento E ON U.ID_establecimiento = E.ID_establecimiento
       LEFT JOIN Alumno AL ON U.ID_usuario = AL.ID_alumno
       LEFT JOIN Curso C ON C.ID_establecimiento = E.ID_establecimiento
       LEFT JOIN Curso_asignatura CA ON C.ID_curso = CA.ID_curso
       LEFT JOIN Asignatura A ON CA.ID_asignatura = A.ID_asignatura
       LEFT JOIN Asignatura_docente AD ON A.ID_asignatura = AD.ID_asignatura AND AD.ID_usuario = U.ID_usuario
-      WHERE U.Rut IS NOT NULL
-        AND E.Comuna IS NOT NULL
-        AND E.Nombre IS NOT NULL
-        AND C.Nombre_curso IS NOT NULL
-        AND A.Nombre IS NOT NULL
+      WHERE 1 = 1
     `;
 
     const params = [];
@@ -96,9 +104,14 @@ app.post("/buscar", async (req, res) => {
     }
 
     const [rows] = await db.query(query, params);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado" });
+    }
+
     res.json(rows);
   } catch (error) {
-    console.error("❌ Error al buscar usuarios:", error);
+    console.error("❌ Error al buscar usuario:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
