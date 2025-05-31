@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend/login-service
+        working-directory: backend/searchp-service
     steps:
       - name: 💻Checkout
         uses: actions/checkout@v3
