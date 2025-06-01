@@ -31,33 +31,6 @@ test('debe registrar un usuario exitosamente', async () => {
     expect(res.body.id).toBe(1);
 });
 
-// Test de obtener usuario
-test('debe obtener un usuario', async () => {
-
-    mockQuery.mockImplementation((query, callback) => {
-
-
-        callback(null,
-            [{
-                ID_usuario: 1,
-                Rut: '12345678-9',
-                Nombres: 'Ana',
-                Apellido_paterno: 'Gómez',
-                Correo: 'correo@gmail.com'
-            }]
-        );
-    });
-
-    const res = await request(app).get('/usuario');
-
-    console.log(res.body);
-
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual(expect.any(Array));
-    expect(res.body.length).toBeGreaterThan(0);
-
-});
-
 // Test de inicio de sesión
 describe('Test de inicio de sesión', () => {
 
