@@ -46,21 +46,20 @@ jobs:
             sleep 2
           done
 
-      - name: 🍂 Esperar logs de searchp-service con conexión establecida
+      - name: 🍂 Esperar logs de searchp_service con conexión establecida
         run: |
           for i in {1..15}; do
-            logs=$(docker logs searchp-service 2>&1)
+            logs=$(docker logs searchp_service 2>&1)
             if echo "$logs" | grep -q "✅ Conexión establecida con la base de datos"; then
-              echo "✅ searchp-service conectado a la base de datos"
+              echo "✅ searchp_service conectado a la base de datos"
               exit 0
             fi
-            echo "⏳ Esperando conexión desde searchp-service..."
+            echo "⏳ Esperando conexión desde searchp_service..."
             sleep 2
           done
           echo "❌ No se detectó conexión en los logs"
-          docker logs searchp-service
+          docker logs searchp_service
           exit 1
-
 
       - name: 👾Ejecutar pruebas de integración
         run: |
