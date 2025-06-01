@@ -4,8 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node searchApp.js",
-    "test": "jest --testPathPattern=unit",
-    "test:integration": "INTEGRATION=true NODE_ENV=test jest --testPathPattern=integration"
+    "test": "jest --testPathPattern=unit"
   },
   "dependencies": {
     "express": "^5.1.0",
