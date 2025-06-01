@@ -27,8 +27,8 @@ async function connectWithRetry() {
   }
 }
 
-// Conectar solo si no está en entorno de test
-if (process.env.NODE_ENV !== "test") {
+// Conectar solo si no está en entorno de Unit Tests o Integración
+if (process.env.NODE_ENV !== "test" || process.env.INTEGRATION === "true") {
   connectWithRetry();
 }
 
