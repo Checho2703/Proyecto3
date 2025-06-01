@@ -1,36 +1,9 @@
 const express = require("express");
-const mysql = require("mysql2/promise");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-let connection;
-
-async function connectWithRetry() {
-  try {
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST || "db",
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-    });
-
-    console.log("✅ Conexión establecida con la base de datos.");
-    app.locals.db = connection;
-  } catch (err) {
-    console.error(
-      "❌ Error al conectar con la BD. Reintentando en 5s...",
-      err.message
-    );
-    setTimeout(connectWithRetry, 5000);
-  }
-}
-
-// Conectar solo si no está en entorno de Unit Tests o Integración
-if (process.env.NODE_ENV !== "test" || process.env.INTEGRATION === "true") {
-  connectWithRetry();
-}
 
 app.post("/buscar", async (req, res) => {
   try {
