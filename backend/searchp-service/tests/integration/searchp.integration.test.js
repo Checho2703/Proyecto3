@@ -10,6 +10,7 @@ test("debe obtener un usuario", async () => {
     expect(res.body.length).toBeGreaterThan(0);
 });
 
+
 test("debe retornar 404 si no se encuentra el usuario", async () => {
     const res = await request(app).post("/buscar").send({ comuna: "ComunaInventada" });
 
