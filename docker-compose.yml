@@ -56,6 +56,39 @@ services:
     networks:
       - red_proyecto3
 
+  #Monitoring
+  prometheus: #Analiza host
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - red_proyecto3
+
+  grafana: # Leer datos de Prometheus
+    image: grafana/grafana
+    ports:
+      - "3009:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    depends_on:
+      - prometheus
+    networks:
+      - red_proyecto3
+
+  cadvisor: #Obtener metricas de contenedores
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - red_proyecto3
+
 volumes:
   db_data:
 
