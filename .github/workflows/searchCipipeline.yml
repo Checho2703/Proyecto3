@@ -29,13 +29,13 @@ jobs:
     needs: unit-test-searchp-service
 
     steps:
-      - name: Clonar repositorio
+      - name: 💻Checkout
         uses: actions/checkout@v3
 
-      - name: Levantar contenedores en segundo plano
+      - name: 🐳Levantar contenedores en segundo plano
         run: docker compose up -d
 
-      - name: Esperar a que MySQL esté listo
+      - name: 🍂Esperar a que MySQL esté listo
         run: |
           for i in {1..15}; do
             if docker exec mysql_db mysqladmin ping -uroot -p1234 --silent; then
@@ -46,25 +46,26 @@ jobs:
             sleep 2
           done
 
-      - name: Esperar logs de login_service con conexión establecida
+      - name: 🍂 Esperar logs de searchp-service con conexión establecida
         run: |
           for i in {1..15}; do
-            logs=$(docker logs login_service 2>&1)
-            if echo "$logs" | grep -q "Conexión establecida con la base de datos"; then
-              echo "✅ login_service conectado a la base de datos"
+            logs=$(docker logs searchp-service 2>&1)
+            if echo "$logs" | grep -q "✅ Conexión establecida con la base de datos"; then
+              echo "✅ searchp-service conectado a la base de datos"
               exit 0
             fi
-            echo "⏳ Esperando conexión desde login_service..."
+            echo "⏳ Esperando conexión desde searchp-service..."
             sleep 2
           done
           echo "❌ No se detectó conexión en los logs"
-          docker logs login_service
+          docker logs searchp-service
           exit 1
 
-      - name: Ejecutar pruebas de integración
-        run: |
-          docker exec login_service npm install
-          docker exec login_service npm run test:integration
 
-      - name: Finalizar contenedores
+      - name: 👾Ejecutar pruebas de integración
+        run: |
+          docker exec searchp-service npm install
+          docker exec searchp-service npm run test:integration
+
+      - name: 📴Finalizar contenedores
         run: docker compose down
