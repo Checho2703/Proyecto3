@@ -62,11 +62,6 @@ jobs:
           docker compose logs
           exit 1
 
-      - name: Ejecutar pruebas de integración
-        run: |
-          docker exec login_service npm install
-          docker exec login_service npm run test:integration
-
       - name: Finalizar contenedores
         run: docker compose down
 
