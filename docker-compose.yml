@@ -30,6 +30,25 @@ services:
       - db
     networks:
       - red_proyecto3
+    volumes:
+      - ./archivos:/usr/src/app/archivos
+
+
+
+  subirpdf-service:
+    build: ./backend/subirPDF-service
+    container_name: subir_pdf_service
+    ports:
+      - "3002:3002"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
 
   frontend:
     build: ./frontend

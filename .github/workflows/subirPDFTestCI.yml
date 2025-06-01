@@ -4,17 +4,17 @@ run-name: Unit test login N.º${{ github.run_number }} hecho por ${{ github.acto
 on:
   push:
     branches:
-      - Login
+      - SubirPDF
 
 
 jobs:
   #hola
   # Tests unitarios  de Backend-Service
-  unit-test-login-service:
+  unit-test-subirPDF-service:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: backend/login-service
+        working-directory: backend/subirPDF-service
     steps:
       - name: 💻Checkout
         uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
   # Pruebas de integración con todos los servicios dockerizados
   docker-up-test:
     runs-on: ubuntu-latest
-    needs: unit-test-login-service
+    needs: unit-test-subirPDF-service
 
     steps:
       - name: Clonar repositorio
@@ -48,15 +48,15 @@ jobs:
             sleep 2
           done
 
-      - name: Esperar logs de login-service con conexión establecida
+      - name: Esperar logs de subirPDF-service con conexión establecida
         run: |
           for i in {1..15}; do
-            logs=$(docker logs login_service 2>&1)
+            logs=$(docker logs subir_pdf_service 2>&1)
             if echo "$logs" | grep -q "Conexión establecida con la base de datos"; then
-              echo "✅ Login-service conectado a la base de datos"
+              echo "✅ subirPDF-service conectado a la base de datos"
               exit 0
             fi
-            echo "⏳ Esperando conexión desde login-service..."
+            echo "⏳ Esperando conexión desde subirPDF-service..."
             sleep 2
           done
           echo "❌ No se detectó conexión en los logs"
