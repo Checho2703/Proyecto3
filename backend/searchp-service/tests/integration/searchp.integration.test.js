@@ -3,7 +3,7 @@ const request = require('supertest');
 
 
 test("debe obtener un usuario", async () => {
-    const res = await request(app).post("/buscar").send({ rut: "12345678-9" });
+    const res = await request(app).post("/buscar").send({ comuna: "Chillan" });
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual(expect.any(Array));
