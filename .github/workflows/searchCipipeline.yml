@@ -63,8 +63,8 @@ jobs:
 
       - name: 👾Ejecutar pruebas de integración
         run: |
-          docker exec searchp-service npm install
-          docker exec searchp-service npm run test:integration
+          docker exec searchp_service npm install
+          docker exec searchp_service npm run test:integration
 
       - name: 📴Finalizar contenedores
         run: docker compose down
