@@ -1,0 +1,9 @@
+{
+  "rut": "",
+  "nombres": "",
+  "apellido_paterno": "",
+  "apellido_materno": "",
+  "correo": "",
+  "contrasena": "",
+  "telefono": ""
+}
