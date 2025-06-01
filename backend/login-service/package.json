@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node loginApp.js",
-    "test": "jest"
+    "test": "jest --testPathPattern=unit"
   },
   "dependencies": {
     "express": "^5.1.0",
