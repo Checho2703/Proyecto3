@@ -84,7 +84,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Construir imagen de login-service
-        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-${{github.run_id}} .
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest .
 
       - name: Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-${{github.run_id}}
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
