@@ -13,3 +13,11 @@ scrape_configs:
   - job_name: "login-service"
     static_configs:
       - targets: ["login-service:3000"]
+
+  - job_name: "searchp-service"
+    static_configs:
+      - targets: ["searchp-service:3001"]
+
+  - job_name: "frontend"
+    static_configs:
+      - targets: ["frontend:80"]
