@@ -1,4 +1,4 @@
-name: Login Test CI
+name: test-subirPDF-service
 
 run-name: Unit test login N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
@@ -86,8 +86,8 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: 🛠️ Construir imagen de subirpdf-service
-        run: docker build -t ${{ secrets.DOCKER_USER }}/subirpdf-service:latest .
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:subirpdf-service-latest .
 
 
       - name: 📤 Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USER }}/subirpdf-service:latest
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:subirpdf-service:latest
