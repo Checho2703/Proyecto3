@@ -68,24 +68,26 @@ jobs:
 
   # Subir imagen a DockerHub
   docker-push-subirPDF-service:
+    name: 🚀 Subir imagen subirPDF-service a DockerHub
     runs-on: ubuntu-latest
     needs: docker-up-test
+
     defaults:
       run:
         working-directory: backend/subirPDF-service
 
     steps:
-      - name: 💻Checkout
+      - name: 💻 Checkout repositorio
         uses: actions/checkout@v3
 
-      - name: Iniciar sesión en DockerHub
+      - name: 🔐 Iniciar sesión en DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Construir imagen de subirPDF-service
+      - name: 🛠️ Construir imagen de subirPDF-service
         run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:latest .
 
-      - name: Subir imagen a DockerHub
+      - name: 📤 Subir imagen a DockerHub
         run: docker push ${{ secrets.DOCKER_USER }}/subirPDF-service:latest
