@@ -50,6 +50,21 @@ services:
     networks:
       - red_proyecto3
 
+  searchp-service:
+    build: ./backend/searchp-service
+    container_name: searchp_service
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
+
   frontend:
     build: ./frontend
     container_name: angular_frontend
@@ -57,6 +72,39 @@ services:
       - "4200:80"
     depends_on:
       - login-service
+    networks:
+      - red_proyecto3
+
+  #Monitoring
+  prometheus: #Analiza host
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - red_proyecto3
+
+  grafana: # Leer datos de Prometheus
+    image: grafana/grafana
+    ports:
+      - "3009:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    depends_on:
+      - prometheus
+    networks:
+      - red_proyecto3
+
+  cadvisor: #Obtener metricas de contenedores
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - red_proyecto3
 
