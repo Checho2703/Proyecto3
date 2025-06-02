@@ -84,10 +84,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-          
+
 
       - name: 🛠️ Construir imagen de subirpdf-service
         run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:subirpdf-service-latest .
 
       - name: 📤 Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:subirpdf-service:latest
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:subirpdf-service-latest
