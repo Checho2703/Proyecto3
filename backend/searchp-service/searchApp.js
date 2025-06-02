@@ -1,5 +1,6 @@
 const express = require("express");
 const mysql = require("mysql2/promise");
+const client = require("prom-client");
 
 const app = express();
 app.use(express.json());
@@ -7,6 +8,25 @@ app.use(express.urlencoded({ extended: true }));
 
 let connection;
 
+// Registro de metricas
+const register = new client.Registry();
+client.collectDefaultMetrics({ register });
+
+const totalBuscarRequests = new client.Counter({
+  name: "buscar_total",
+  help: "Total de peticiones al endpoint /buscar",
+});
+
+const tiempoRespuestaBuscar = new client.Histogram({
+  name: "tiempo_respuesta_buscar_segundos",
+  help: "Duración de peticiones al endpoint /buscar",
+  buckets: [0.1, 0.5, 1, 2, 5],
+});
+
+register.registerMetric(totalBuscarRequests);
+register.registerMetric(tiempoRespuestaBuscar);
+
+// BD Conexion
 async function connectWithRetry() {
   try {
     connection = await mysql.createConnection({
@@ -27,22 +47,26 @@ async function connectWithRetry() {
   }
 }
 
-// Conectar solo si no está en entorno de test
-if (process.env.NODE_ENV !== "test" ) {
+if (process.env.NODE_ENV !== "test") {
   connectWithRetry();
 }
 
+//buscar usuarios
 app.post("/buscar", async (req, res) => {
+  const end = tiempoRespuestaBuscar.startTimer();
+  totalBuscarRequests.inc();
+
   try {
     const db = req.app.locals.db;
     if (!db) {
+      end();
       return res.status(500).json({ error: "Sin conexión a la base de datos" });
     }
 
     const { comuna, colegio, curso, asignatura, rut } = req.body;
 
-    //Validación obligatoria de los campos a ingresar
     if (!comuna && !colegio && !curso && !asignatura && !rut) {
+      end();
       return res
         .status(400)
         .json({ error: "Debe proporcionar al menos un criterio de búsqueda." });
@@ -104,6 +128,7 @@ app.post("/buscar", async (req, res) => {
     }
 
     const [rows] = await db.query(query, params);
+    end();
 
     if (rows.length === 0) {
       return res.status(404).json({ mensaje: "Usuario no encontrado" });
@@ -111,9 +136,16 @@ app.post("/buscar", async (req, res) => {
 
     res.json(rows);
   } catch (error) {
+    end();
     console.error("❌ Error al buscar usuario:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
+});
+
+// metricas para Prometheus
+app.get("/metrics", async (req, res) => {
+  res.set("Content-Type", register.contentType);
+  res.end(await register.metrics());
 });
 
 module.exports = app;
