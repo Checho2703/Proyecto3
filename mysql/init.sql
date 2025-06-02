@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS Usuario (
   Telefono VARCHAR(20),
   Estado VARCHAR(20),
   Fecha_nac DATE,
-  Tipo_usuario VARCHAR(50),
   ID_rol INT,
   ID_establecimiento INT,
   FOREIGN KEY (ID_rol) REFERENCES Rol_usuario(ID_rol),
@@ -233,13 +232,13 @@ INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Te
 ('Instituto Tecnológico', 'Instituto Profesional', 'Av. Principal 101', 'Las Condes', '229990011', 'admision@instituto.cl', 'Carlos Vera');
 
 -- 3. Usuarios (Se insertan usuarios genéricos que luego serán Alumnos, Apoderados, Docentes, Funcionarios)
-INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, Contrasena, Telefono, Estado, Fecha_nac, Tipo_usuario, ID_rol, ID_establecimiento) VALUES
-('11111111-1', 'Juan', 'Pérez', 'García', 'juan.perez@example.com', 'hashed_pass1', '911111111', 'Activo', '2005-03-15', 'Alumno', 3, 1), -- Alumno del Colegio San Juan (ID_usuario = 1)
-('22222222-2', 'María', 'López', 'Silva', 'maria.lopez@example.com', 'hashed_pass2', '922222222', 'Activo', '1980-07-20', 'Docente', 2, 1), -- Docente del Colegio San Juan (ID_usuario = 2)
-('33333333-3', 'Ana', 'Martínez', 'Fuentes', 'ana.martinez@example.com', 'hashed_pass3', '933333333', 'Activo', '1975-11-01', 'Apoderado', 4, NULL), -- Apoderado (ID_usuario = 3)
-('44444444-4', 'Carlos', 'González', 'Rojas', 'carlos.gonzalez@example.com', 'hashed_pass4', '944444444', 'Activo', '1990-04-22', 'Funcionario', 5, 2), -- Funcionario del Liceo Bicentenario (ID_usuario = 4)
-('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', 'hashed_pass5', '955555555', 'Activo', '2006-09-01', 'Alumno', 3, 2), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
-('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', 'hashed_pass6', '966666666', 'Activo', '1978-02-10', 'Docente', 2, 2); -- Docente del Liceo Bicentenario (ID_usuario = 6)
+INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, Contrasena, Telefono, Estado, Fecha_nac, ID_rol, ID_establecimiento) VALUES
+('11111111-1', 'Juan', 'Pérez', 'García', 'juan.perez@example.com', 'hashed_pass1', '911111111', 'Activo', '2005-03-15', 3, 1), -- Alumno del Colegio San Juan (ID_usuario = 1)
+('22222222-2', 'María', 'López', 'Silva', 'maria.lopez@example.com', 'hashed_pass2', '922222222', 'Activo', '1980-07-20', 2, 1), -- Docente del Colegio San Juan (ID_usuario = 2)
+('33333333-3', 'Ana', 'Martínez', 'Fuentes', 'ana.martinez@example.com', 'hashed_pass3', '933333333', 'Activo', '1975-11-01', 4, NULL), -- Apoderado (ID_usuario = 3)
+('44444444-4', 'Carlos', 'González', 'Rojas', 'carlos.gonzalez@example.com', 'hashed_pass4', '944444444', 'Activo', '1990-04-22', 5, 2), -- Funcionario del Liceo Bicentenario (ID_usuario = 4)
+('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', 'hashed_pass5', '955555555', 'Activo', '2006-09-01', 3, 2), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
+('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', 'hashed_pass6', '966666666', 'Activo', '1978-02-10', 2, 2); -- Docente del Liceo Bicentenario (ID_usuario = 6)
 
 
 -- 4. Alumno (ID_alumno es ID_usuario)

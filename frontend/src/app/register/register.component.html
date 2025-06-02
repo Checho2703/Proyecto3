@@ -1,26 +1,148 @@
-<h2>Registro INCRIBLE</h2>
-<form (ngSubmit)="registrar()">
-  <input type="text" placeholder="RUT" [(ngModel)]="rut" name="rut" />
-  <input type="text" placeholder="Nombre" [(ngModel)]="nombre" name="nombre" />
-  <input
-    type="text"
-    placeholder="Apellido Paterno"
-    [(ngModel)]="apellido1"
-    name="apellido1"
-  />
-  <input
-    type="text"
-    placeholder="Apellido Materno"
-    [(ngModel)]="apellido2"
-    name="apellido2"
-  />
-  <input type="email" placeholder="Correo" [(ngModel)]="correo" name="correo" />
-  <input
-    type="password"
-    placeholder="Contraseña"
-    [(ngModel)]="contrasena"
-    name="contrasena"
-  />
-  <button type="submit">Registrar</button>
-</form>
-<a routerLink="/login">Volver al login</a>
+<div class="register-container">
+  <h2>Registrar Nuevo Usuario</h2>
+
+  <form (ngSubmit)="onRegisterSubmit()">
+    <div class="message-container">
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="rut">RUT:</label>
+      <input
+        type="text"
+        id="rut"
+        [(ngModel)]="rut"
+        name="rut"
+        required
+        placeholder="Ej: 12345678-9"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="nombres">Nombres:</label>
+      <input
+        type="text"
+        id="nombres"
+        [(ngModel)]="nombres"
+        name="nombres"
+        required
+        placeholder="Ej: Juan Antonio"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="apellidoPaterno">Apellido Paterno:</label>
+      <input
+        type="text"
+        id="apellidoPaterno"
+        [(ngModel)]="apellido_paterno"
+        name="apellidoPaterno"
+        required
+        placeholder="Ej: Pérez"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="apellidoMaterno">Apellido Materno (opcional):</label>
+      <input
+        type="text"
+        id="apellidoMaterno"
+        [(ngModel)]="apellido_materno"
+        name="apellidoMaterno"
+        placeholder="Ej: González"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="correo">Correo Electrónico:</label>
+      <input
+        type="email"
+        id="correo"
+        [(ngModel)]="correo"
+        name="correo"
+        required
+        placeholder="Ej: usuario@example.com"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="contrasena">Contraseña:</label>
+      <input
+        type="password"
+        id="contrasena"
+        [(ngModel)]="contrasena"
+        name="contrasena"
+        required
+        placeholder="Mínimo 6 caracteres"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="telefono">Teléfono (opcional):</label>
+      <input
+        type="tel"
+        id="telefono"
+        [(ngModel)]="telefono"
+        name="telefono"
+        placeholder="Ej: +56912345678"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="fechaNac">Fecha de Nacimiento (opcional):</label>
+      <input
+        type="date"
+        id="fechaNac"
+        [(ngModel)]="fecha_nac"
+        name="fechaNac"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="idRol">Tipo de Usuario (Rol):</label>
+      <select id="idRol" [(ngModel)]="id_rol" name="idRol" required>
+        <option [ngValue]="null" disabled selected>-- Seleccione un rol --</option>
+        <option [ngValue]="3">Alumno</option>
+        <option [ngValue]="2">Docente</option>
+        <option [ngValue]="4">Apoderado</option>
+        <option [ngValue]="5">Funcionario</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+      <label for="idEstablecimiento">Establecimiento:</label>
+      <select
+        id="idEstablecimiento"
+        [(ngModel)]="id_establecimiento"
+        name="idEstablecimiento"
+        required
+      >
+        <option [ngValue]="null" disabled selected>
+          -- Seleccione un establecimiento --
+        </option>
+        <ng-container *ngIf="establecimientos.length > 0; else noEstablecimientos">
+          <option
+            *ngFor="let est of establecimientos"
+            [ngValue]="est.ID_establecimiento"
+          >
+            {{ est.Nombre }}
+          </option>
+        </ng-container>
+        <ng-template #noEstablecimientos>
+          <option [ngValue]="null" disabled>Cargando establecimientos...</option>
+        </ng-template>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-register">Registrar</button>
+
+    <button type="button" class="btn-secondary" (click)="goToLogin()">
+      Ya tengo una cuenta / Volver al Login
+    </button>
+  </form>
+</div>
