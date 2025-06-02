@@ -84,12 +84,8 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Obtener SHA del commit
-        id: vars
-        run: echo "COMMIT_SHA=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_ENV
-
       - name: Construir imagen de login-service
-        run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:$COMMIT_SHA .
+        run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:${{github.sha}} .
 
       - name: Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USER }}/subirPDF-service:$COMMIT_SHA	
+        run: docker push ${{ secrets.DOCKER_USER }}/subirPDF-service:${{github.sha}}
