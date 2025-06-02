@@ -1,4 +1,4 @@
-name: Login Test CI
+name: test-subirPDF-service
 
 run-name: Unit test login N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
