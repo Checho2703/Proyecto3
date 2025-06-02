@@ -31,7 +31,7 @@ jobs:
     needs: unit-test-subirPDF-service
 
     steps:
-      - name: Clonar repositorio
+      - name: 💻Checkout
         uses: actions/checkout@v3
 
       - name: Levantar contenedores en segundo plano
@@ -67,15 +67,15 @@ jobs:
         run: docker compose down
 
   # Subir imagen a DockerHub
-  docker-push-login-service:
+  docker-push-subirPDF-service:
     runs-on: ubuntu-latest
     needs: docker-up-test
     defaults:
       run:
-        working-directory: backend/login-service
+        working-directory: backend/subirPDF-service
 
     steps:
-      - name: Clonar repositorio
+      - name: 💻Checkout
         uses: actions/checkout@v3
 
       - name: Iniciar sesión en DockerHub
@@ -84,7 +84,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Construir imagen de login-service
+      - name: Construir imagen de subirPDF-service
         run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:latest .
 
       - name: Subir imagen a DockerHub
