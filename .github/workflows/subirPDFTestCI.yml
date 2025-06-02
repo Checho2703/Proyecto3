@@ -85,7 +85,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Construir imagen de login-service
-        run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:lastest .
+        run: docker build -t ${{ secrets.DOCKER_USER }}/subirPDF-service:latest .
 
       - name: Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USER }}/subirPDF-service:lastest
+        run: docker push ${{ secrets.DOCKER_USER }}/subirPDF-service:latest
