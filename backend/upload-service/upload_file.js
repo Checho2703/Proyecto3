@@ -6,7 +6,7 @@ const mysql = require('mysql2');
 
 
 // express de archivo
-const extensionesValidas = ['pdf', 'docx'];
+const extensionesValidas = ['pdf', 'docx', 'mp4'];
 
 const app = express();
 app.use(express.json());
