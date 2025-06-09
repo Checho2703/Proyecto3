@@ -1,6 +1,6 @@
 name: test-login-service
 
-run-name: Test N.º${{ github.run_number }} hecho por ${{ github.actor }}
+run-name: Test login N.º${{ github.run_number }} hecho por ${{ github.actor }}
 on:
   push:
     branches:

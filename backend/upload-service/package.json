@@ -1,0 +1,22 @@
+{
+  "name": "upload-service",
+  "version": "1.0.0",
+  "description": "Servidor para subir archivos PDF organizados por parámetros",
+  "main": "index.js",
+  "scripts": {
+    "start": "node upload_file.js",
+    "test": "jest --testPathPattern=unit"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1",
+    "express-fileupload": "^1.5.1"
+  },
+  "keywords": [],
+  "author": "Isaac",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
+  }
+}
