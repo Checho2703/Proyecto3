@@ -33,11 +33,9 @@ services:
     volumes:
       - ./archivos:/usr/src/app/archivos
 
-
-
-  subirpdf-service:
-    build: ./backend/subirPDF-service
-    container_name: subir_pdf_service
+  upload-service:
+    build: ./backend/upload-service
+    container_name: upload_service
     ports:
       - "3002:3002"
     environment:
@@ -49,6 +47,8 @@ services:
       - db
     networks:
       - red_proyecto3
+    volumes:
+      - ./archivos:/app/archivos
 
   searchp-service:
     build: ./backend/searchp-service
