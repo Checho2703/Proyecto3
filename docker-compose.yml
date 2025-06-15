@@ -33,6 +33,24 @@ services:
     volumes:
       - ./archivos:/usr/src/app/archivos
 
+
+
+
+  create-service:
+    build: ./backend/create-service
+    container_name: create_service
+    ports:
+      - "3003:3003"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
+
   upload-service:
     build: ./backend/upload-service
     container_name: upload_service
@@ -76,7 +94,7 @@ services:
       - red_proyecto3
 
   #Monitoring
-  prometheus: #Analiza host
+  prometheus: 
     image: prom/prometheus
     ports:
       - "9090:9090"
@@ -85,7 +103,7 @@ services:
     networks:
       - red_proyecto3
 
-  grafana: # Leer datos de Prometheus
+  grafana: 
     image: grafana/grafana
     ports:
       - "3009:3000"
@@ -96,7 +114,7 @@ services:
     networks:
       - red_proyecto3
 
-  cadvisor: #Obtener metricas de contenedores
+  cadvisor: 
     image: gcr.io/cadvisor/cadvisor:latest
     ports:
       - "8080:8080"
