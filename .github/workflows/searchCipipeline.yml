@@ -1,0 +1,91 @@
+name: test-searchCipipeline
+
+run-name: Test searchp N.º${{ github.run_number }} hecho por ${{ github.actor }}
+on:
+  push:
+    branches:
+      - BuscarPersonas
+
+jobs:
+  # Tests unitarios  de Backend-Service
+  unit-test-searchp-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/searchp-service
+    steps:
+      - name: 💻Checkout
+        uses: actions/checkout@v3
+
+      - name: 🛠️Instalar dependecias
+        run: npm install
+
+      - name: 👾Test
+        run: npm test
+
+  # Pruebas de integración con todos los servicios dockerizados
+  docker-up-test:
+    runs-on: ubuntu-latest
+    needs: unit-test-searchp-service
+
+    steps:
+      - name: 💻Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐳Levantar contenedores en segundo plano
+        run: docker compose up -d
+
+      - name: 🍂Esperar a que MySQL esté listo
+        run: |
+          for i in {1..15}; do
+            if docker exec mysql_db mysqladmin ping -uroot -p1234 --silent; then
+              echo "✅ MySQL listo"
+              break
+            fi
+            echo "⏳ Esperando a MySQL..."
+            sleep 2
+          done
+
+      - name: 🍂 Esperar logs de searchp_service con conexión establecida
+        run: |
+          for i in {1..15}; do
+            logs=$(docker logs searchp_service 2>&1)
+            if echo "$logs" | grep -q "✅ Conexión establecida con la base de datos"; then
+              echo "✅ searchp_service conectado a la base de datos"
+              exit 0
+            fi
+            echo "⏳ Esperando conexión desde searchp_service..."
+            sleep 2
+          done
+          echo "❌ No se detectó conexión en los logs"
+          docker logs searchp_service
+          exit 1
+
+      - name: 📴Finalizar contenedores
+        run: docker compose down
+
+  # Subir imagen a DockerHub
+  docker-push-searchp-service:
+    runs-on: ubuntu-latest
+    needs: docker-up-test
+
+    defaults:
+      run:
+        working-directory: backend/searchp-service
+
+    steps:
+      - name: 💻 Checkout repositorio
+        uses: actions/checkout@v3
+
+      - name: 🔐 Iniciar sesión en DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: 🛠️ Construir imagen de searchp-service
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest .
+
+
+      - name: 📤 Subir imagen a DockerHub
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest

@@ -37,7 +37,16 @@ CREATE TABLE IF NOT EXISTS Usuario (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- 4. Alumno (Ya no se referencia a Apoderado aquí)
+-- 4. Apoderado
+CREATE TABLE IF NOT EXISTS Apoderado (
+  ID_apoderado INT PRIMARY KEY,
+  Parentezco VARCHAR(50),
+  ID_alumno INT,
+  FOREIGN KEY (ID_apoderado) REFERENCES Usuario(ID_usuario),
+  FOREIGN KEY (ID_alumno) REFERENCES Usuario(ID_usuario)
+);
+
+-- 5. Alumno
 CREATE TABLE IF NOT EXISTS Alumno (
   ID_alumno INT PRIMARY KEY,
   Curso_actual VARCHAR(50),
@@ -47,7 +56,7 @@ CREATE TABLE IF NOT EXISTS Alumno (
   FOREIGN KEY (ID_alumno) REFERENCES Usuario(ID_usuario)
 );
 
--- 5. Funcionario
+-- 6. Funcionario
 CREATE TABLE IF NOT EXISTS Funcionario (
   ID_funcionario INT PRIMARY KEY,
   Cargo VARCHAR(50),
@@ -56,7 +65,7 @@ CREATE TABLE IF NOT EXISTS Funcionario (
   FOREIGN KEY (ID_funcionario) REFERENCES Usuario(ID_usuario)
 );
 
--- 6. Asignaturas
+-- 7. Asignaturas
 CREATE TABLE IF NOT EXISTS Asignatura (
   ID_asignatura INT PRIMARY KEY AUTO_INCREMENT,
   Nombre VARCHAR(100),
@@ -72,7 +81,7 @@ CREATE TABLE IF NOT EXISTS Asignatura_docente (
   FOREIGN KEY (ID_usuario) REFERENCES Usuario(ID_usuario)
 );
 
--- 7. Curso
+-- 8. Curso
 CREATE TABLE IF NOT EXISTS Curso (
   ID_curso INT PRIMARY KEY AUTO_INCREMENT,
   Nombre_curso VARCHAR(100),
@@ -92,7 +101,7 @@ CREATE TABLE IF NOT EXISTS Curso_asignatura (
   FOREIGN KEY (ID_asignatura) REFERENCES Asignatura(ID_asignatura)
 );
 
--- 8. Archivo
+-- 9. Archivo
 CREATE TABLE IF NOT EXISTS Archivo (
   ID_archivo INT PRIMARY KEY AUTO_INCREMENT,
   Nombre VARCHAR(100),
@@ -100,18 +109,14 @@ CREATE TABLE IF NOT EXISTS Archivo (
   Formato VARCHAR(20),
   Url TEXT,
   Fecha_subida DATETIME,
-  DUA TEXT,
-  OA TEXT,
-  Nivel_educativo VARCHAR(50),
-  Adecuacion_DUA TEXT,
-  Objetivos_aprendizaje TEXT,
+  Descripcion TEXT,
   ID_profesor INT,
   ID_asignatura INT,
   FOREIGN KEY (ID_profesor) REFERENCES Usuario(ID_usuario),
   FOREIGN KEY (ID_asignatura) REFERENCES Asignatura(ID_asignatura)
 );
 
--- 9. Ensayo
+-- 10. Ensayo
 CREATE TABLE IF NOT EXISTS Ensayo (
   ID_ensayo INT PRIMARY KEY AUTO_INCREMENT,
   Tipo VARCHAR(50),
@@ -121,7 +126,7 @@ CREATE TABLE IF NOT EXISTS Ensayo (
   FOREIGN KEY (ID_usuario) REFERENCES Usuario(ID_usuario)
 );
 
--- 10. Reporte
+-- 11. Reporte
 CREATE TABLE Reporte (
   ID_reporte INT PRIMARY KEY AUTO_INCREMENT,
   Tipo VARCHAR(50),
@@ -136,7 +141,7 @@ CREATE TABLE Reporte (
   FOREIGN KEY (Para_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- 11. Asistencia
+-- 12. Asistencia
 CREATE TABLE IF NOT EXISTS Asistencia (
   ID_asistencia INT PRIMARY KEY AUTO_INCREMENT,
   Fecha DATE,
@@ -146,7 +151,7 @@ CREATE TABLE IF NOT EXISTS Asistencia (
   FOREIGN KEY (ID_usuario) REFERENCES Usuario(ID_usuario)
 );
 
--- 12. Inasistencia
+-- 13. Inasistencia
 CREATE TABLE IF NOT EXISTS Inasistencia (
   ID_inasistencia INT PRIMARY KEY AUTO_INCREMENT,
   Fecha DATE,
@@ -155,7 +160,7 @@ CREATE TABLE IF NOT EXISTS Inasistencia (
   FOREIGN KEY (ID_usuario) REFERENCES Usuario(ID_usuario)
 );
 
--- 13. Historial de matrícula
+-- 14. Historial de matrícula
 CREATE TABLE IF NOT EXISTS Historial_matricula (
   ID_historial INT PRIMARY KEY AUTO_INCREMENT,
   ID_usuario INT,
@@ -167,7 +172,7 @@ CREATE TABLE IF NOT EXISTS Historial_matricula (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- 14. Accidente Escolar
+-- 15. Accidente Escolar
 CREATE TABLE IF NOT EXISTS Accidente_escolar (
   ID_accidente INT PRIMARY KEY AUTO_INCREMENT,
   Fecha DATE,
@@ -179,7 +184,7 @@ CREATE TABLE IF NOT EXISTS Accidente_escolar (
   FOREIGN KEY (ID_usuario) REFERENCES Usuario(ID_usuario)
 );
 
--- 15. Notas
+-- 16. Notas
 CREATE TABLE IF NOT EXISTS Notas (
   ID_nota INT PRIMARY KEY AUTO_INCREMENT,
   Nota DECIMAL(4,2),
@@ -190,7 +195,7 @@ CREATE TABLE IF NOT EXISTS Notas (
   FOREIGN KEY (ID_asignatura) REFERENCES Asignatura(ID_asignatura)
 );
 
--- 16. Mensajes
+-- 17. Mensajes
 CREATE TABLE IF NOT EXISTS Mensaje (
   ID_mensaje INT PRIMARY KEY AUTO_INCREMENT,
   Destinatario_tipo VARCHAR(50),
@@ -206,23 +211,12 @@ CREATE TABLE IF NOT EXISTS Mensaje (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- ¡NUEVA TABLA! Relación muchos a muchos entre Apoderados y Alumnos
-CREATE TABLE IF NOT EXISTS Apoderado_Alumno (
-    ID_apoderado_fk INT, -- Esto es el ID_usuario del Apoderado
-    ID_alumno_fk INT,   -- Esto es el ID_usuario del Alumno
-    Parentezco VARCHAR(50), -- El parentezco del apoderado con este alumno específico
-    PRIMARY KEY (ID_apoderado_fk, ID_alumno_fk), -- La combinación de ambos IDs es única
-    FOREIGN KEY (ID_apoderado_fk) REFERENCES Usuario(ID_usuario),
-    FOREIGN KEY (ID_alumno_fk) REFERENCES Usuario(ID_usuario)
-);
+-- Inserciones de prueba
+INSERT INTO Rol_usuario (Nombre_rol) 
+VALUES ('Profesor');
 
--- 1. Roles
-INSERT INTO Rol_usuario (Nombre_rol) VALUES
-('Administrador'),
-('Docente'),
-('Alumno'),
-('Apoderado'),
-('Funcionario');
+INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre)
+VALUES ('Colegio Ejemplo', 'Particular', 'Av. Ejemplo 123', 'Chillan', '22222222', 'ColegioEjemplo@example.com', 'Pedro Pérez');
 
 -- 2. Establecimientos
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
@@ -277,13 +271,6 @@ INSERT INTO Curso_asignatura (ID_curso, ID_asignatura) VALUES
 (1, 3), -- 8° Básico A tiene Historia
 (2, 2), -- 1° Medio B tiene Lenguaje
 (2, 4); -- 1° Medio B tiene Ciencias Naturales
-
--- 8. Archivo
-INSERT INTO Archivo (Nombre, Tipo, Formato, Url, Fecha_subida, DUA, OA, Nivel_educativo, Adecuacion_DUA, Objetivos_aprendizaje, ID_profesor, ID_asignatura) VALUES
-('Guía de Ecuaciones', 'Material de Apoyo', 'PDF', '[http://ejemplo.com/guia_mat.pdf](http://ejemplo.com/guia_mat.pdf)', '2024-03-10 10:00:00', 'Principios de DUA', 'Resolver ecuaciones lineales', 'Básica', 'Adecuación para dislexia', 'Comprensión y aplicación de ecuaciones', 2, 1),
-('Presentación Clima', 'Presentación', 'PPTX', '[http://ejemplo.com/pres_cien.pptx](http://ejemplo.com/pres_cien.pptx)', '2024-04-01 14:30:00', 'Variedad de presentación', 'Describir fenómenos climáticos', 'Media', 'Uso de pictogramas', 'Identificación de factores climáticos', 6, 4),
-('Ficha de Lectura', 'Actividad', 'DOCX', '[http://ejemplo.com/ficha_lectura.docx](http://ejemplo.com/ficha_lectura.docx)', '2024-03-20 11:00:00', 'Formato flexible', 'Analizar textos narrativos', 'Básica', 'Preguntas con opciones múltiples', 'Análisis de personajes y trama', 2, 2),
-('Mapa Conceptual Historia', 'Recurso Visual', 'PNG', '[http://ejemplo.com/mapa_historia.png](http://ejemplo.com/mapa_historia.png)', '2024-05-05 09:00:00', 'Representación visual', 'Organizar eventos históricos', 'Básica', 'Colores contrastantes', 'Secuencia cronológica de eventos', 6, 3);
 
 -- 9. Ensayo
 INSERT INTO Ensayo (Tipo, Fecha, Resultado, ID_usuario) VALUES
