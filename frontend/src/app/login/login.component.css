@@ -1,5 +1,78 @@
 /* login.component.css */
 
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    /* Ocupa al menos el 100% de la altura de la vista */
+    background-color: #f0f2f5;
+    /* Un fondo gris claro para la página */
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    /* Fuente más amigable */
+}
+
+.login-form {
+    background-color: #ffffff;
+    /* Fondo blanco para el formulario */
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    /* Sombra suave para darle profundidad */
+    width: 100%;
+    max-width: 400px;
+    /* Ancho máximo para el formulario */
+    box-sizing: border-box;
+    /* Incluye padding y border en el ancho total */
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 0.95em;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-weight: bold;
+}
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+    /* Asegura que el padding no aumente el ancho total */
+    font-size: 1em;
+}
+
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus {
+    border-color: #007bff;
+    /* Borde azul al enfocar */
+    outline: none;
+    /* Remueve el contorno por defecto del navegador */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    /* Sombra al enfocar */
+}
+
 .message-container {
     margin-top: 15px;
     margin-bottom: 15px;
@@ -7,16 +80,76 @@
     border-radius: 4px;
     font-weight: bold;
     text-align: center;
+    font-size: 0.9em;
+    /* Un poco más pequeño para mensajes */
 }
 
 .error-message {
-    background-color: #f8d7da; /* Fondo rojo claro */
-    color: #721c24; /* Texto rojo oscuro */
+    background-color: #f8d7da;
+    /* Fondo rojo claro */
+    color: #721c24;
+    /* Texto rojo oscuro */
     border: 1px solid #f5c6cb;
 }
 
 .success-message {
-    background-color: #d4edda; /* Fondo verde claro */
-    color: #155724; /* Texto verde oscuro */
+    background-color: #d4edda;
+    /* Fondo verde claro */
+    color: #155724;
+    /* Texto verde oscuro */
     border: 1px solid #c3e6cb;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    /* Azul vibrante */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+    width: 100%;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+    /* Transición suave al pasar el mouse */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    /* Azul más oscuro al pasar el mouse */
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    /* Gris para el botón secundario */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.95em;
+    width: 100%;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    /* Gris más oscuro al pasar el mouse */
+}
+
+.forgot-password {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: color 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: #0056b3;
+    text-decoration: underline;
 }
