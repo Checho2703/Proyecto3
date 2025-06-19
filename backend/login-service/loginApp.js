@@ -71,6 +71,8 @@ if (process.env.NODE_ENV !== "test") {
   connectWithRetry();
 }
 
+//----------------------------------------------------------------------
+
 app.get('/establecimientos', (req, res) => {
     // ¡CORRECCIÓN AQUÍ! Obtén la conexión 'db' del objeto 'app'
     const db = app.get("db");
