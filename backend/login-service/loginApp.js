@@ -1,10 +1,13 @@
 const express = require("express");
 const mysql = require("mysql2");
+const cors = require("cors");
 const client = require("prom-client");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+
 
 let connection;
 app.set("db", connection);
@@ -67,6 +70,25 @@ function connectWithRetry() {
 if (process.env.NODE_ENV !== "test") {
   connectWithRetry();
 }
+
+//----------------------------------------------------------------------
+
+app.get('/establecimientos', (req, res) => {
+    // ¡CORRECCIÓN AQUÍ! Obtén la conexión 'db' del objeto 'app'
+    const db = app.get("db");
+    if (!db) { // Agrega esta verificación también aquí
+        return res.status(500).json({ error: "Base de datos no disponible. Inténtalo de nuevo más tarde." });
+    }
+
+    const query = 'SELECT ID_establecimiento, Nombre FROM Establecimiento'; // Solo necesitas ID y Nombre
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error al obtener establecimientos:', err);
+            return res.status(500).json({ error: 'Error interno del servidor al obtener establecimientos' });
+        }
+        res.status(200).json(results);
+    });
+});
 
 //------------------------------------------------------------------
 app.post("/register", (req, res) => {

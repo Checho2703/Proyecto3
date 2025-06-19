@@ -18,6 +18,6 @@ scrape_configs:
     static_configs:
       - targets: ["searchp-service:3001"]
 
-  - job_name: "frontend"
+  - job_name: "upload-service"
     static_configs:
-      - targets: ["frontend:80"]
+      - targets: ["upload-service:3002"]
