@@ -11,7 +11,7 @@ beforeEach(() => {
 
 // Test de registro de usuario
 test('debe registrar un usuario exitosamente', async () => {
-    mockQuery.mockImplementation((query, data, callback) => {
+    mockQuery.mockImplementation((callback) => {
         callback(null, { insertId: 1 });
     });
 
