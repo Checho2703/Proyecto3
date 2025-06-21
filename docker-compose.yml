@@ -65,6 +65,22 @@ services:
     networks:
       - red_proyecto3
 
+
+  list-service:
+    build: ./backend/list-service
+    container_name: list_service
+    ports:
+      - "3003:3003"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
+
   frontend:
     build: ./frontend
     container_name: angular_frontend
