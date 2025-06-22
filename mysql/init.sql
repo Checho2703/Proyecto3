@@ -212,9 +212,12 @@ CREATE TABLE IF NOT EXISTS Mensaje (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- Inserciones de prueba
-INSERT INTO Rol_usuario (Nombre_rol) 
-VALUES ('Profesor');
+-- Antes de insertar usuarios, inserta todos los roles
+INSERT INTO Rol_usuario (Nombre_rol) VALUES 
+('Administrador'),    -- ID_rol = 1
+('Docente'),         -- ID_rol = 2
+('Alumno'),          -- ID_rol = 3
+('Apoderado'),       -- ID_rol = 4
 
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre)
 VALUES ('Colegio Ejemplo', 'Particular', 'Av. Ejemplo 123', 'Chillan', '22222222', 'ColegioEjemplo@example.com', 'Pedro Pérez');
@@ -231,6 +234,5 @@ INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, C
 ('11111111-1', 'Juan', 'Pérez', 'García', 'juan.perez@example.com', 'hashed_pass1', '911111111', 'Activo', '2005-03-15', 3, 1), -- Alumno del Colegio San Juan (ID_usuario = 1)
 ('22222222-2', 'María', 'López', 'Silva', 'maria.lopez@example.com', 'hashed_pass2', '922222222', 'Activo', '1980-07-20', 2, 1), -- Docente del Colegio San Juan (ID_usuario = 2)
 ('33333333-3', 'Ana', 'Martínez', 'Fuentes', 'ana.martinez@example.com', 'hashed_pass3', '933333333', 'Activo', '1975-11-01', 4, NULL), -- Apoderado (ID_usuario = 3)
-('44444444-4', 'Carlos', 'González', 'Rojas', 'carlos.gonzalez@example.com', 'hashed_pass4', '944444444', 'Activo', '1990-04-22', 5, 2), -- Funcionario del Liceo Bicentenario (ID_usuario = 4)
-('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', 'hashed_pass5', '955555555', 'Activo', '2006-09-01', 3, 2), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
-('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', 'hashed_pass6', '966666666', 'Activo', '1978-02-10', 2, 2); -- Docente del Liceo Bicentenario (ID_usuario = 6)
+('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', 'hashed_pass5', '955555555', 'Activo', '2006-09-01', 3, 2), -- Alumno del Liceo Bicentenario (ID_usuario = 4)
+('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', 'hashed_pass6', '966666666', 'Activo', '1978-02-10', 2, 2); -- Docente del Liceo Bicentenario (ID_usuario = 5)
