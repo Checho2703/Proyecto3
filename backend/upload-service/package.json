@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node upload_file.js",
-    "test": "jest --testPathPattern=unit"
+    "test": "jest"
   },
   "dependencies": {
     "express": "^5.1.0",

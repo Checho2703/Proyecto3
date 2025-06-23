@@ -73,7 +73,6 @@ Comportamiento entre las funciones:
 function validarExtension(extension) {
     return extensionesValidas.includes(extension);
 }
-
 // Crear ruta de almacenamiento
 function crearRutaArchivo(comuna, colegio, curso, asignatura) {
     if (!comuna || !colegio || !curso || !asignatura) {
@@ -131,79 +130,62 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
     });
 }
 
+
+
 //########################### HTTP #################################
+app.post("/uploadFile", async (req, res) => {
+  const end = tiempoRespuestaUpload.startTimer();
+  totalUploadRequests.inc();
 
-app.post("/uploadFile", (req, res) => {
-    const end = tiempoRespuestaUpload.startTimer();
-    totalUploadRequests.inc();
-
-    try {
-        // BD
-        const db = app.get("db");
-        // Verificar si se ha enviado un archivo
-        if (!req.files) {
-            end();
-            return res.status(400).json({
-                ok: false,
-                mensaje: "No se ha seleccionado ningún archivo",
-                error: { mensaje: "Debe seleccionar un archivo PDF" },
-            });
-        }
-        // Variables
-        const archivo = req.files.archivo;
-        const { comuna, colegio, curso, asignatura, tipo, descripcion } = req.body;
-        const nombreArchivo = archivo.name;
-        const extensionArchivo = path.extname(nombreArchivo).toLowerCase().slice(1);
-        const fechaSubida = new Date();
-        // Validar la extensión del archivo
-        if (!validarExtension(extensionArchivo)) {
-            end();
-            return res.status(400).json({
-                ok: false,
-                mensaje: "Extensión de archivo no válida",
-                error: { mensaje: "Debe subir un archivo PDF" },
-            });
-        }
-        // Crear la ruta de almacenamiento y destino
-        const rutaCarpeta = crearRutaArchivo(comuna, colegio, curso, asignatura);
-        const rutaDestino = path.join(rutaCarpeta, nombreArchivo);
-        // Preparar datos para la base de datos
-        const datos = {
-            nombreArchivo,
-            tipo,
-            rutaDestino,
-            extensionArchivo,
-            fechaSubida,
-            descripcion,
-        };
-        // Verificar y crear las carpetas necesarias
-        administradorCarpetas(rutaCarpeta);
-        // Mover el archivo pdf
-        moverArchivo(archivo, rutaDestino, (err) => {
-            if (err) {
-                end();
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: "Ha ocurrido un error al procesar el archivo",
-                    error: err,
-                });
-            }
-            guardarDatosPDF(db, datos, (err, insertId) => {
-                end();
-                if (err) {
-                    return res.status(500).json({
-                        ok: false,
-                        mensaje: "Error al guardar datos en BD",
-                        error: err,
-                    });
-                }
-                return res.status(200).json({
-                    ok: true,
-                    mensaje: "Archivo subido correctamente",
-                    ruta: rutaDestino,
-                    id: insertId,
-                });
-            });
+  try {
+    // BD
+    const db = app.get("db");
+    // Verificar si se ha enviado un archivo
+    if (!req.files) {
+      end();
+      return res.status(400).json({
+        ok: false,
+        mensaje: "No se ha seleccionado ningún archivo",
+        error: { mensaje: "Debe seleccionar un archivo PDF" },
+      });
+    }
+    // Variables
+    const archivo = req.files.archivo;
+    const { comuna, colegio, curso, asignatura, tipo, descripcion } = req.body;
+    const nombreArchivo = archivo.name;
+    const extensionArchivo = path.extname(nombreArchivo).toLowerCase().slice(1);
+    const fechaSubida = new Date();
+    // Validar la extensión del archivo
+    if (!validarExtension(extensionArchivo)) {
+      end();
+      return res.status(400).json({
+        ok: false,
+        mensaje: "Extensión de archivo no válida",
+        error: { mensaje: "Debe subir un archivo PDF" },
+      });
+    }
+    // Crear la ruta de almacenamiento y destino
+    const rutaCarpeta = crearRutaArchivo(comuna, colegio, curso, asignatura);
+    const rutaDestino = path.join(rutaCarpeta, nombreArchivo);
+    // Preparar datos para la base de datos
+    const datos = {
+      nombreArchivo,
+      tipo,
+      rutaDestino,
+      extensionArchivo,
+      fechaSubida,
+      descripcion,
+    };
+    // Verificar y crear las carpetas necesarias
+    administradorCarpetas(rutaCarpeta);
+    // Mover el archivo pdf
+    moverArchivo(archivo, rutaDestino, (err) => {
+      if (err) {
+        end();
+        return res.status(500).json({
+          ok: false,
+          mensaje: "Ha ocurrido un error al procesar el archivo",
+          error: err,
         });
     } catch (err) {
         end();
