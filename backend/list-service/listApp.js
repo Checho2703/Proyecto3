@@ -198,4 +198,9 @@ app.get("/metrics", async (req, res) => {
   res.end(await register.metrics());
 });
 
+
+app.get("/", (req, res) => {
+  res.send("Funciona");
+});
+
 module.exports = app;
