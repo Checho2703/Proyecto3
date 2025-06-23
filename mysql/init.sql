@@ -213,11 +213,24 @@ CREATE TABLE IF NOT EXISTS Mensaje (
 );
 
 -- Inserciones de prueba
-INSERT INTO Rol_usuario (Nombre_rol) 
-VALUES ('Profesor');
+INSERT INTO Rol_usuario (Nombre_rol) VALUES 
+('Docente'),
+('Alumno'),
+('Apoderado'),
+('Administrador');
 
-INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre)
-VALUES ('Colegio Ejemplo', 'Particular', 'Av. Ejemplo 123', 'Chillan', '22222222', 'ColegioEjemplo@example.com', 'Pedro Pérez');
+-- 2. Establecimientos
+INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
+('Colegio San Juan', 'Colegio', 'Av. Siempre Viva 123', 'Santiago', '221112233', 'contacto@sanjuan.cl', 'María González'),
+('Liceo Bicentenario', 'Liceo', 'Calle Falsa 456', 'Ñuñoa', '224445566', 'info@liceobicentenario.cl', 'Pedro Ramírez'),
+('Escuela Básica El Sol', 'Escuela', 'Pasaje Lunar 789', 'Providencia', '227778899', 'contacto@elsol.cl', 'Ana Torres'),
+('Instituto Tecnológico', 'Instituto Profesional', 'Av. Principal 101', 'Las Condes', '229990011', 'admision@instituto.cl', 'Carlos Vera');
 
-INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, Contrasena, Telefono, Estado, Fecha_nac, Tipo_usuario, ID_rol, ID_establecimiento)
-VALUES ('12345678-9', 'Juan Miguel', 'Pérez', 'Gonzálezov', 'juan@example.com', '1234', '11111111', 'Activo', '1990-01-01', 'Profesor', 1, 1);
+-- 3. Usuarios (Se insertan usuarios genéricos que luego serán Alumnos, Apoderados, Docentes, Funcionarios)
+INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, Contrasena, Telefono, Estado, Fecha_nac, ID_rol, ID_establecimiento) VALUES
+('11111111-1', 'Juan', 'Pérez', 'García', 'juan.perez@example.com', '1234', '911111111', 'Activo', '2005-03-15', 2, 1), -- Alumno del Colegio San Juan (ID_usuario = 1)
+('22222222-2', 'María', 'López', 'Silva', 'maria.lopez@example.com', '1111', '922222222', 'Activo', '1980-07-20', 1, 1), -- Docente del Colegio San Juan (ID_usuario = 2)
+('33333333-3', 'Ana', 'Martínez', 'Fuentes', 'ana.martinez@example.com', '2222', '933333333', 'Activo', '1975-11-01', 3, 1), -- Apoderado (ID_usuario = 3)
+('44444444-4', 'Carlos', 'González', 'Rojas', 'carlos.gonzalez@example.com', '3333', '944444444', 'Activo', '1990-04-22', 4, 1), -- Funcionario del Liceo Bicentenario (ID_usuario = 4)
+('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', '4444', '955555555', 'Activo', '2006-09-01', 2, 1), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
+('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', '0000', '966666666', 'Activo', '1978-02-10', 1, 1); -- Docente del Liceo Bicentenario (ID_usuario = 6)
