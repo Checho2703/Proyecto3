@@ -70,7 +70,7 @@ services:
     build: ./backend/list-service
     container_name: list_service
     ports:
-      - "3003:3003"
+      - "3004:3004"
     environment:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
