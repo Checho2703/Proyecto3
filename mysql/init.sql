@@ -212,15 +212,13 @@ CREATE TABLE IF NOT EXISTS Mensaje (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
+
 -- Antes de insertar usuarios, inserta todos los roles
 INSERT INTO Rol_usuario (Nombre_rol) VALUES 
 ('Administrador'),    -- ID_rol = 1
 ('Docente'),         -- ID_rol = 2
 ('Alumno'),          -- ID_rol = 3
 ('Apoderado'),       -- ID_rol = 4
-
-INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre)
-VALUES ('Colegio Ejemplo', 'Particular', 'Av. Ejemplo 123', 'Chillan', '22222222', 'ColegioEjemplo@example.com', 'Pedro Pérez');
 
 -- 2. Establecimientos
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
@@ -236,3 +234,4 @@ INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, C
 ('33333333-3', 'Ana', 'Martínez', 'Fuentes', 'ana.martinez@example.com', 'hashed_pass3', '933333333', 'Activo', '1975-11-01', 4, NULL), -- Apoderado (ID_usuario = 3)
 ('55555555-5', 'Sofía', 'Ramírez', 'Díaz', 'sofia.ramirez@example.com', 'hashed_pass5', '955555555', 'Activo', '2006-09-01', 3, 2), -- Alumno del Liceo Bicentenario (ID_usuario = 4)
 ('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', 'hashed_pass6', '966666666', 'Activo', '1978-02-10', 2, 2); -- Docente del Liceo Bicentenario (ID_usuario = 5)
+
