@@ -1,0 +1,48 @@
+name: test-list-service
+
+run-name: Test list N.º${{ github.run_number }} hecho por ${{ github.actor }}
+on:
+    push:
+        branches:
+            - ListarArchivos
+
+
+jobs:
+    # Tests unitarios  de Backend-Service
+    unit-test-list-service:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: backend/list-service
+        steps:
+            - name: 💻Checkout
+              uses: actions/checkout@v3
+
+            - name: 🛠️Instalar dependecias
+              run: npm install
+
+            - name: 👾Test
+              run: npm test
+
+    # Subir imagen a DockerHub
+    docker-push-list-service:
+        runs-on: ubuntu-latest
+        needs: unit-test-list-service
+        defaults:
+            run:
+                working-directory: backend/list-service
+        steps:
+            - name: Clonar repositorio
+              uses: actions/checkout@v3
+
+            - name: Iniciar sesión en DockerHub
+              uses: docker/login-action@v2
+              with:
+                username: ${{ secrets.DOCKER_USER }}
+                password: ${{ secrets.DOCKER_TOKEN }}
+
+            - name: Construir imagen de list-service
+              run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest .
+
+            - name: Subir imagen a DockerHub
+              run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest
