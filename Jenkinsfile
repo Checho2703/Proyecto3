@@ -1,160 +1,93 @@
 pipeline {
     agent any
-    
-    environment {
-        DOCKER_HUB_CREDENTIALS = credentials('grupomfifsl-dockerhub') // ID de las credenciales en Jenkins
-        MYSQL_ROOT_PASSWORD = credentials('bd_password')
-        MYSQL_DATABASE = 'microservices_db'
-        MYSQL_HOST = 'localhost' // MySQL nativo en la misma instancia
-        MYSQL_PORT = '3306'
-        NETWORK_NAME = 'microservices-network'
+
+    parameters {
+        string(name: 'SERVICE_TO_DEPLOY', defaultValue: '', description: 'Nombre del servicio a desplegar (ej. frontend, backend1, new-service)')
+        string(name: 'DOCKERHUB_IMAGE_NAME', defaultValue: '', description: 'Nombre completo de la imagen en Docker Hub (ej. user/repo:tag)')
+        string(name: 'ENV_VARIABLES', defaultValue: '', description: 'Variables de entorno clave=valor separadas por coma (ej. API_KEY=xyz)')
+        string(name: 'CONTAINER_PORT_MAPPING', defaultValue: '', description: 'Mapeo de puertos (ej. 8080:80)')
+        string(name: 'DOCKER_NETWORK_NAME', defaultValue: 'my_app_network', description: 'Nombre de la red Docker a usar.')
+        booleanParam(name: 'IS_NEW_SERVICE', defaultValue: false, description: 'Marcar si es un servicio completamente nuevo (no existe el contenedor).')
     }
-    
-    triggers {
-        // Escucha webhooks de GitHub para pull requests en main
-        githubPush()
+
+    environment {
+        DOCKER_USER = 'grupomfifsl'
+        DOCKER_REPO = 'mis-servicios'
+        DOCKER_PASS = credentials('grupomfifsl-dockerhub')
+
+        MYSQL_HOST = '186.189.71.139'
+        MYSQL_USER = 'samjoys'
+        MYSQL_PASSWORD = credentials('bd_password')
+        MYSQL_DATABASE = 'db_main'
     }
     
     stages {
-        stage('Verificar Pull Request') {
+        stage('Desplegar en PR a main') {
             when {
-                anyOf {
-                    branch 'main'
-                    changeRequest target: 'main'
-                }
+                changeRequest(target: 'main')
             }
-            steps {
-                script {
-                    echo "Pull Request detectado en rama main"
-                    echo "Iniciando proceso de despliegue de microservicios"
-                }
-            }
-        }
-        
-        stage('Preparar Entorno Docker') {
-            steps {
-                script {
-                    // Limpiar contenedores anteriores de microservicios
-                    sh '''
-                        echo "Limpiando contenedores existentes de microservicios..."
-                        docker stop upload-service list-service login-service subirpdf-service 2>/dev/null || true
-                        docker rm upload-service list-service login-service subirpdf-service 2>/dev/null || true
-                        
-                        # Crear red si no existe
-                        docker network ls | grep ${NETWORK_NAME} || docker network create ${NETWORK_NAME}
-                    '''
-                }
-            }
-        }
-        
-        stage('Verificar MySQL Nativo') {
-            steps {
-                script {
-                    sh '''
-                        echo "Verificando conexión a MySQL nativo..."
-                        # Verificar que MySQL esté corriendo
-                        sudo systemctl status mysql || sudo systemctl status mysqld
-                        
-                        # Verificar conexión
-                        mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -uroot -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1;" || {
-                            echo "Error: No se puede conectar a MySQL"
-                            exit 1
-                        }
-                        
-                        # Crear base de datos si no existe
-                        mysql -h${MYSQL_HOST} -P${MYSQL_PORT} -uroot -p${MYSQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
-                        echo "MySQL nativo verificado y base de datos preparada"
-                    '''
-                }
-            }
-        }
-        
-        stage('Pull y Deploy Microservicios') {
-            parallel {
-                stage('Upload Service') {
+            stages {
+                stage('Desplegar servicio Docker') {
                     steps {
                         script {
-                            sh '''
-                                echo "Desplegando upload-service..."
-                                docker pull grupomffsl/mis-servicios:upload-service-latest
-                                docker run -d \
-                                    --name upload-service \
-                                    --network ${NETWORK_NAME} \
-                                    --add-host=host.docker.internal:host-gateway \
-                                    -p 3002:3002 \
-                                    -e DB_HOST=host.docker.internal \
-                                    -e DB_PORT=${MYSQL_PORT} \
-                                    -e DB_NAME=${MYSQL_DATABASE} \
-                                    -e DB_USER=root \
-                                    -e DB_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                                    grupomffsl/mis-servicios:upload-service-latest
-                            '''
-                        }
-                    }
-                }
-                
-                stage('List Service') {
-                    steps {
-                        script {
-                            sh '''
-                                echo "Desplegando list-service..."
-                                docker pull grupomffsl/mis-servicios:list-service-latest
-                                docker run -d \
-                                    --name list-service \
-                                    --network ${NETWORK_NAME} \
-                                    --add-host=host.docker.internal:host-gateway \
-                                    -p 3004:3004 \
-                                    -e DB_HOST=host.docker.internal \
-                                    -e DB_PORT=${MYSQL_PORT} \
-                                    -e DB_NAME=${MYSQL_DATABASE} \
-                                    -e DB_USER=root \
-                                    -e DB_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                                    grupomffsl/mis-servicios:list-service-latest
-                            '''
-                        }
-                    }
-                }
-                
-                stage('Login Service') {
-                    steps {
-                        script {
-                            sh '''
-                                echo "Desplegando login-service..."
-                                docker pull grupomffsl/mis-servicios:login-service-latest
-                                docker run -d \
-                                    --name login-service \
-                                    --network ${NETWORK_NAME} \
-                                    --add-host=host.docker.internal:host-gateway \
-                                    -p 3000:3000 \
-                                    -e DB_HOST=host.docker.internal \
-                                    -e DB_PORT=${MYSQL_PORT} \
-                                    -e DB_NAME=${MYSQL_DATABASE} \
-                                    -e DB_USER=root \
-                                    -e DB_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                                    grupomffsl/mis-servicios:login-service-latest
-                            '''
-                        }
-                    }
-                }
-                
-                stage('SubirPDF Service') {
-                    steps {
-                        script {
-                            sh '''
-                                echo "Desplegando subirpdf-service..."
-                                docker pull grupomffsl/mis-servicios:subirpdf-service-latest
-                                docker run -d \
-                                    --name subirpdf-service \
-                                    --network ${NETWORK_NAME} \
-                                    --add-host=host.docker.internal:host-gateway \
-                                    -p 3002:3002 \
-                                    -e DB_HOST=host.docker.internal \
-                                    -e DB_PORT=${MYSQL_PORT} \
-                                    -e DB_NAME=${MYSQL_DATABASE} \
-                                    -e DB_USER=root \
-                                    -e DB_PASSWORD=${MYSQL_ROOT_PASSWORD} \
-                                    grupomffsl/mis-servicios:subirpdf-service-latest
-                            '''
+                            def portMapping = params.CONTAINER_PORT_MAPPING ? "-p ${params.CONTAINER_PORT_MAPPING}" : ""
+                            
+                            def envVars = []
+                            if (params.ENV_VARIABLES) {
+                                params.ENV_VARIABLES.split(',').each { pair ->
+                                    envVars << "-e ${pair.trim()}"
+                                }
+                            }
+                            
+                            // Comandos comunes
+                            sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                            sh "docker pull ${params.DOCKERHUB_IMAGE_NAME}"
+                            
+                            if (!params.IS_NEW_SERVICE) {
+                                sh "docker stop ${params.SERVICE_TO_DEPLOY} || true"
+                                sh "docker rm ${params.SERVICE_TO_DEPLOY} || true"
+                            }
+                            
+                            // Comandos específicos por servicio
+                            switch(params.SERVICE_TO_DEPLOY) {
+                                case 'frontend-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name frontend_service \\
+                                        -p 4200:80 \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                case 'login-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name login_service \\
+                                        -p 3000:3000 \\
+                                        -e DB_HOST=${MYSQL_HOST} \\
+                                        -e DB_USER=${MYSQL_USER} \\
+                                        -e DB_PASSWORD=${MYSQL_PASSWORD} \\
+                                        -e DB_NAME=${MYSQL_DATABASE} \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                case 'upload-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name upload-service-latest \\
+                                        -p 3001:3001 \\
+                                        -e DB_HOST=${MYSQL_HOST} \\
+                                        -e DB_USER=${MYSQL_USER} \\
+                                        -e DB_PASSWORD=${MYSQL_PASSWORD} \\
+                                        -e DB_NAME=${MYSQL_DATABASE} \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                default:
+                                    error "Servicio desconocido: ${params.SERVICE_TO_DEPLOY}"
+                            }
                         }
                     }
                 }
