@@ -8,11 +8,6 @@ on:
 
 
 jobs:
-  # Tests unitarios  de Backend-Service
-  unit-test-frontend-service:
-
-
-  
     runs-on: ubuntu-latest
     defaults:
       run:
