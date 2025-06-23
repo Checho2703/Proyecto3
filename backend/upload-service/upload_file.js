@@ -14,7 +14,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 //########################## MÉTRICAS PROMETHEUS ##############################
-
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
