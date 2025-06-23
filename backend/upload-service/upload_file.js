@@ -111,6 +111,7 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
         VALUES (?, ?, ?, ?, ?, ?)
         `
         ;
+
     const valores = [
         datosArchivos.nombreArchivo,
         datosArchivos.tipo,
@@ -132,6 +133,7 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
 
 
 //########################### HTTP #################################
+
 app.post("/uploadFile", async (req, res) => {
     const end = tiempoRespuestaUpload.startTimer();
     totalUploadRequests.inc();
