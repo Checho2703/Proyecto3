@@ -14,7 +14,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 //########################## MÉTRICAS PROMETHEUS ##############################
-
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
@@ -106,11 +105,13 @@ function moverArchivo(archivo, rutaDestino, callback) {
 
 // Guardar datos del archivo en la base de datos
 function guardarDatosPDF(connection, datosArchivos, callback) {
-    const sql = `
+    const sql =` 
         INSERT INTO Archivo
         (Nombre, Tipo, Url, Formato, Fecha_subida, Descripcion)
         VALUES (?, ?, ?, ?, ?, ?)
-    `;
+        `
+        ;
+
     const valores = [
         datosArchivos.nombreArchivo,
         datosArchivos.tipo,
