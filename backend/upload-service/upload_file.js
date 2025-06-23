@@ -73,7 +73,6 @@ Comportamiento entre las funciones:
 function validarExtension(extension) {
   return extensionesValidas.includes(extension);
 }
-
 // Crear ruta de almacenamiento
 function crearRutaArchivo(comuna, colegio, curso, asignatura) {
   if (!comuna || !colegio || !curso || !asignatura) {
@@ -131,9 +130,11 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
   });
 }
 
+
+
 //########################### HTTP #################################
 
-app.post("/uploadFile", (req, res) => {
+app.post("/uploadFile", async (req, res) => {
   const end = tiempoRespuestaUpload.startTimer();
   totalUploadRequests.inc();
 
