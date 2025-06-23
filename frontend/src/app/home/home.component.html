@@ -1,0 +1,130 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="assets/logo.png" alt="Logo" style="height: 30px;" class="me-2">
+            EduSmart
+        </a>
+        <div class="d-flex ms-auto align-items-center">
+            <span class="navbar-text text-white me-3">
+                Bienvenido(a), {{ userName || 'Usuario' }}!
+            </span>
+            <button class="btn btn-outline-light" (click)="logout()">Cerrar Sesión</button>
+            <button class="btn btn-outline-light">Mi Perfil</button>"
+        </div>
+    </div>
+</nav>
+
+<div class="main-content-area py-4">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 d-none d-md-block sidebar-panel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Navegación Rápida</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <a href="#" class="text-decoration-none">Mi Perfil</a>
+                            </li>
+                            <li class="list-group-item" *ngIf="isAlumno">
+                                <a href="#" class="text-decoration-none">Mis Cursos</a>
+                            </li>
+                            <li class="list-group-item" *ngIf="isAlumno">
+                                <a href="#" class="text-decoration-none">Mis Notas</a>
+                            </li>
+                            <li class="list-group-item" *ngIf="isAdministrator">
+                                <a href="#" class="text-decoration-none">Gestionar Usuarios</a>
+                            </li>
+                            <li class="list-group-item" *ngIf="isAdministrator">
+                                <a href="#" class="text-decoration-none">Registrar Nuevo Usuario</a>
+                            </li>
+                            <li class="list-group-item" *ngIf="isAdministrator">
+                                <a href="#" class="text-decoration-none">Configuración del sistema</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm" *ngIf="isAdministrator">
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">Información Rápida</h5>
+                        <p class="card-text">
+                            <small class="text-muted">Estado del sistema: Normal</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9 main-content-panel">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Resumen General</h4>
+                        <p class="card-text">Aquí podrás ver un resumen de tu actividad reciente y novedades.</p>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3" *ngIf="isAlumno || isDocente">
+                        <div class="card feature-card shadow-sm h-100 text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Cursos</h5>
+                                <p class="card-text text-muted">Accede a tus cursos y materiales.</p>
+                                <button class="btn btn-info btn-sm">Ver Cursos</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3" *ngIf="isAlumno || isDocente">
+                        <div class="card feature-card shadow-sm h-100 text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Notas</h5>
+                                <p class="card-text text-muted">Consulta tus calificaciones y rendimiento.</p>
+                                <button class="btn btn-info btn-sm">Ver Notas</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3" *ngIf="isAdministrator">
+                        <div class="card feature-card shadow-sm h-100 text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Gestionar Usuarios</h5>
+                                <p class="card-text text-muted">Revisa los usuarios registrados en el sistema.</p>
+                                <button class="btn btn-info btn-sm">Gestionar Usuarios</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3" *ngIf="isAdministrator">
+                        <div class="card feature-card shadow-sm h-100 text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Registrar usuario</h5>
+                                <p class="card-text text-muted">Registra un nuevo usuario al sistema.</p>
+                                <button class="btn btn-info btn-sm" (click)="goToRegister()">Ir a Registrar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3" *ngIf="isAdministrator">
+                        <div class="card feature-card shadow-sm h-100 text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Configuración sistema</h5>
+                                <p class="card-text text-muted">Entra al apartado de configuración del sistema.</p>
+                                <button class="btn btn-info btn-sm">Ir a Configurar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Últimas Novedades</h5>
+                        <p class="card-text">No hay nuevas notificaciones en este momento.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer text-white py-3">
+    <div class="container text-center">
+        <img src="assets/logo.png" alt="Logo" style="height: 25px;" class="me-2 d-inline-block align-middle">
+        <span class="align-middle">EduSmart</span>
+    </div>
+</footer>
