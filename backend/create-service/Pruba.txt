@@ -1,0 +1,32 @@
+
+Para Establecimiento
+{
+  "nombre": "",
+  "tipo_establecimiento": "",
+  "direccion": "",
+  "comuna": "",
+  "telefono": "",
+  "email_contacto": "",
+  "director_nombre": ""
+}
+
+
+Para Curso
+{
+  "nombre_curso": "",
+  "nivel": "",
+  "anio": ,
+  "jornada": "",
+  "id_establecimiento": 
+}
+
+
+Para asignatura
+
+
+Curso
+{
+  "nombre": "",
+  "nivel_educativo": "",
+  "id_curso": 
+}
