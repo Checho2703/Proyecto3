@@ -8,22 +8,8 @@ on:
 
 
 jobs:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-      - name: 💻Checkout
-        uses: actions/checkout@v3
-
-      - name: 🛠️Instalar dependecias
-        run: npm install
-
-      - name: 👾Test
-        run: npm test
-
   # Subir imagen a DockerHub
-docker-push-frontend-service:
+  docker-push-frontend-service:
     runs-on: ubuntu-latest
     defaults:
       run:
