@@ -23,7 +23,7 @@ jobs:
         run: npm test
 
   # Subir imagen a DockerHub
-  docker-push-frontend-service:
+docker-push-frontend-service:
     runs-on: ubuntu-latest
     defaults:
       run:
