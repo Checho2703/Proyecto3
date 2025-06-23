@@ -65,6 +65,22 @@ services:
     networks:
       - red_proyecto3
 
+
+  list-service:
+    build: ./backend/list-service
+    container_name: list_service
+    ports:
+      - "3004:3004"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
+
   frontend:
     build: ./frontend
     container_name: angular_frontend
@@ -96,18 +112,7 @@ services:
     networks:
       - red_proyecto3
 
-  cadvisor: #Obtener metricas de contenedores
-    image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    networks:
-      - red_proyecto3
-
+      
 volumes:
   db_data:
 
