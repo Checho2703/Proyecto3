@@ -1,0 +1,51 @@
+name: test-frontend-service
+
+run-name: Test Frontend N.º${{ github.run_number }} hecho por ${{ github.actor }}
+on:
+  push:
+    branches:
+      - Frontend
+
+
+jobs:
+  # Tests unitarios  de Backend-Service
+  unit-test-frontend-service:
+
+
+  
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: 💻Checkout
+        uses: actions/checkout@v3
+
+      - name: 🛠️Instalar dependecias
+        run: npm install
+
+      - name: 👾Test
+        run: npm test
+
+  # Subir imagen a DockerHub
+  docker-push-frontend-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Clonar repositorio
+        uses: actions/checkout@v3
+
+      - name: Iniciar sesión en DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Construir imagen de frontend-service
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest .
+
+      - name: Subir imagen a DockerHub
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
