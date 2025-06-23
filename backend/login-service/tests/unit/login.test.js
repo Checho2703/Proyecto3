@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('../../loginApp');
-const e = require('express');
 
 const mockQuery = jest.fn();
 

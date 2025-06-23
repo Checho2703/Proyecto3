@@ -45,14 +45,14 @@ function connectWithRetry() {
     });
     connection.connect((err) => {
         if (err) {
-            console.error(
-                "❌ Error al conectar con la BD. Reintentando en 5s...",
-                err.message
-            );
-            setTimeout(connectWithRetry, 5000);
+        console.error(
+            "❌ Error al conectar con la BD. Reintentando en 5s...",
+            err.message
+        );
+        setTimeout(connectWithRetry, 5000);
         } else {
-            console.log("✅ Conexión establecida con la base de datos.");
-            app.set("db", connection);
+        console.log("✅ Conexión establecida con la base de datos.");
+        app.set("db", connection);
         }
     });
 }
@@ -73,12 +73,11 @@ Comportamiento entre las funciones:
 function validarExtension(extension) {
     return extensionesValidas.includes(extension);
 }
-
 // Crear ruta de almacenamiento
 function crearRutaArchivo(comuna, colegio, curso, asignatura) {
     if (!comuna || !colegio || !curso || !asignatura) {
         throw new Error(
-            "Todos los parámetros (comuna, colegio, curso, asignatura) son OBLIGATORIOS para crear la ruta del archivo."
+        "Todos los parámetros (comuna, colegio, curso, asignatura) son OBLIGATORIOS para crear la ruta del archivo."
         );
     }
     const rutaCarpeta = path.join(
@@ -108,10 +107,9 @@ function moverArchivo(archivo, rutaDestino, callback) {
 // Guardar datos del archivo en la base de datos
 function guardarDatosPDF(connection, datosArchivos, callback) {
     const sql = `
-    INSERT INTO Archivo
-    (Nombre, Tipo, Url, Formato, Fecha_subida, Descripcion)
-    VALUES (?, ?, ?, ?, ?, ?)
-    
+        INSERT INTO Archivo
+        (Nombre, Tipo, Url, Formato, Fecha_subida, Descripcion)
+        VALUES (?, ?, ?, ?, ?, ?)
     `;
     const valores = [
         datosArchivos.nombreArchivo,
@@ -123,17 +121,19 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
     ];
     connection.query(sql, valores, (err, resultado) => {
         if (err) {
-            console.log("❌ Error al guardar datos", err.message);
-            return callback(err, null);
+        console.log("❌ Error al guardar datos", err.message);
+        return callback(err, null);
         }
         console.log("✅ Datos guardados:", resultado.insertId);
         callback(null, resultado.insertId);
     });
 }
 
+
+
 //########################### HTTP #################################
 
-app.post("/uploadFile", (req, res) => {
+app.post("/uploadFile", async (req, res) => {
     const end = tiempoRespuestaUpload.startTimer();
     totalUploadRequests.inc();
 
@@ -142,12 +142,12 @@ app.post("/uploadFile", (req, res) => {
         const db = app.get("db");
         // Verificar si se ha enviado un archivo
         if (!req.files) {
-            end();
-            return res.status(400).json({
-                ok: false,
-                mensaje: "No se ha seleccionado ningún archivo",
-                error: { mensaje: "Debe seleccionar un archivo PDF" },
-            });
+        end();
+        return res.status(400).json({
+            ok: false,
+            mensaje: "No se ha seleccionado ningún archivo",
+            error: { mensaje: "Debe seleccionar un archivo PDF" },
+        });
         }
         // Variables
         const archivo = req.files.archivo;
@@ -157,61 +157,61 @@ app.post("/uploadFile", (req, res) => {
         const fechaSubida = new Date();
         // Validar la extensión del archivo
         if (!validarExtension(extensionArchivo)) {
-            end();
-            return res.status(400).json({
-                ok: false,
-                mensaje: "Extensión de archivo no válida",
-                error: { mensaje: "Debe subir un archivo PDF" },
-            });
+        end();
+        return res.status(400).json({
+            ok: false,
+            mensaje: "Extensión de archivo no válida",
+            error: { mensaje: "Debe subir un archivo PDF" },
+        });
         }
         // Crear la ruta de almacenamiento y destino
         const rutaCarpeta = crearRutaArchivo(comuna, colegio, curso, asignatura);
         const rutaDestino = path.join(rutaCarpeta, nombreArchivo);
         // Preparar datos para la base de datos
         const datos = {
-            nombreArchivo,
-            tipo,
-            rutaDestino,
-            extensionArchivo,
-            fechaSubida,
-            descripcion,
+        nombreArchivo,
+        tipo,
+        rutaDestino,
+        extensionArchivo,
+        fechaSubida,
+        descripcion,
         };
         // Verificar y crear las carpetas necesarias
         administradorCarpetas(rutaCarpeta);
         // Mover el archivo pdf
         moverArchivo(archivo, rutaDestino, (err) => {
-            if (err) {
-                end();
-                return res.status(500).json({
-                    ok: false,
-                    mensaje: "Ha ocurrido un error al procesar el archivo",
-                    error: err,
-                });
-            }
-            guardarDatosPDF(db, datos, (err, insertId) => {
-                end();
-                if (err) {
-                    return res.status(500).json({
-                        ok: false,
-                        mensaje: "Error al guardar datos en BD",
-                        error: err,
-                    });
-                }
-                return res.status(200).json({
-                    ok: true,
-                    mensaje: "Archivo subido correctamente",
-                    ruta: rutaDestino,
-                    id: insertId,
-                });
+        if (err) {
+            end();
+            return res.status(500).json({
+            ok: false,
+            mensaje: "Ha ocurrido un error al procesar el archivo",
+            error: err,
             });
+        }
+        guardarDatosPDF(db, datos, (err, insertId) => {
+            end();
+            if (err) {
+            return res.status(500).json({
+                ok: false,
+                mensaje: "Error al guardar datos en BD",
+                error: err,
+            });
+            }
+            return res.status(200).json({
+            ok: true,
+            mensaje: "Archivo subido correctamente",
+            ruta: rutaDestino,
+            id: insertId,
+            });
+        });
         });
     } catch (err) {
         end();
         console.error("Error al subir el archivo:", err);
         return res.status(500).json({
-            ok: false,
-            mensaje: "Error al subir el archivo",
-            error: err,
+        ok: false,
+        mensaje: "Error al subir el archivo",
+        error: err,
         });
     }
 });
@@ -224,3 +224,5 @@ app.get("/metrics", async (req, res) => {
 });
 
 module.exports = app;
+
+

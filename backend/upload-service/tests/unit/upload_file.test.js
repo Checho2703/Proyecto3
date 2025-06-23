@@ -31,5 +31,43 @@ test('✅ se guardó con éxito el archivo', async () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.ok).toBe(true);
     expect(response.body.id).toBe(123);
-    expect(mockQuery).toHaveBeenCalled(); // Verificamos que la DB fue usada
+    expect(mockQuery).toHaveBeenCalled();
 });
+
+test('❌ error no se selecciono archivo', async () => {
+    const response = await request(app).post('/uploadFile')
+        .field('comuna', 'Santiago')
+        .field('colegio', 'ColegioX')
+        .field('curso', '4A')
+        .field('asignatura', 'Historia')
+        .field('tipo', 'Tarea')
+        .field('descripcion', 'Archivo de prueba')
+        .attach('archivo', null); 
+
+    console.log(response.body);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.ok).toBe(false);
+    expect(response.body.mensaje).toBe("No se ha seleccionado ningún archivo");
+});
+
+test('❌ error extensión no válida', async () => {
+    const response = await request(app).post('/uploadFile')
+        .field('comuna', 'Santiago')
+        .field('colegio', 'ColegioX')
+        .field('curso', '4A')
+        .field('asignatura', 'Historia')
+        .field('tipo', 'Tarea')
+        .field('descripcion', 'Archivo de prueba')
+        .attach('archivo', fakePdf, {
+            filename: 'prueba.txt',
+            contentType: 'text/plain'
+        });
+
+    console.log(response.body);
+
+    expect(response.statusCode).toBe(400);
+    expect(response.body.ok).toBe(false);
+    expect(response.body.mensaje).toBe("Extensión de archivo no válida");
+});
+
