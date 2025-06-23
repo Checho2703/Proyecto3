@@ -4,17 +4,18 @@ pipeline {
     parameters {
         string(name: 'SERVICE_TO_DEPLOY', defaultValue: '', description: 'Nombre del servicio a desplegar (ej. frontend, backend1, new-service)')
         string(name: 'DOCKERHUB_IMAGE_NAME', defaultValue: '', description: 'Nombre completo de la imagen en Docker Hub (ej. user/repo:tag)')
-        string(name: 'CONTAINER_PORT_MAPPING', defaultValue: '', description: 'Mapeo de puertos (ej. 80:80 o 3000:3000). Vacío si no se expone.')
         string(name: 'ENV_VARIABLES', defaultValue: '', description: 'Variables de entorno clave=valor separadas por coma (ej. API_KEY=xyz)')
+        string(name: 'CONTAINER_PORT_MAPPING', defaultValue: '', description: 'Mapeo de puertos (ej. 8080:80)')
         string(name: 'DOCKER_NETWORK_NAME', defaultValue: 'my_app_network', description: 'Nombre de la red Docker a usar.')
         booleanParam(name: 'IS_NEW_SERVICE', defaultValue: false, description: 'Marcar si es un servicio completamente nuevo (no existe el contenedor).')
     }
 
     environment {
-        DOCKER_USER = 'grupomffsl'
+        DOCKER_USER = 'grupomfifsl'
         DOCKER_REPO = 'mis-servicios'
         DOCKER_PASS = credentials('grupomfifsl-dockerhub')
 
+        MYSQL_HOST = '186.189.71.139'
         MYSQL_USER = 'samjoys'
         MYSQL_PASSWORD = credentials('bd_password')
         MYSQL_DATABASE = 'db_main'
@@ -26,78 +27,67 @@ pipeline {
                 changeRequest(target: 'main')
             }
             stages {
-                stage('Validar parámetros') {
-                    steps {
-                        script {
-                            if (params.SERVICE_TO_DEPLOY == '' || params.DOCKERHUB_IMAGE_NAME == '') {
-                                error('Los parámetros SERVICE_TO_DEPLOY y DOCKERHUB_IMAGE_NAME son obligatorios.')
-                            }
-                        }
-                    }
-                }
-
                 stage('Desplegar servicio Docker') {
                     steps {
                         script {
-                            def portMapping = ''
-                            if (params.CONTAINER_PORT_MAPPING) {
-                                portMapping = "-p ${params.CONTAINER_PORT_MAPPING}"
-                            }
-
-                            def envVars = ''
+                            def portMapping = params.CONTAINER_PORT_MAPPING ? "-p ${params.CONTAINER_PORT_MAPPING}" : ""
+                            
+                            def envVars = []
                             if (params.ENV_VARIABLES) {
                                 params.ENV_VARIABLES.split(',').each { pair ->
-                                    envVars += "-e ${pair.trim()} "
+                                    envVars << "-e ${pair.trim()}"
                                 }
                             }
-
-                            def deployScript = """
-                                #!/bin/bash
-                                set -e
-
-                                echo "--- Iniciando despliegue ---"
-                                echo "Servicio: ${params.SERVICE_TO_DEPLOY}"
-                                echo "Imagen: ${params.DOCKERHUB_IMAGE_NAME}"
-
-                                echo "Verificando red Docker: ${params.DOCKER_NETWORK_NAME}"
-                                sudo docker network inspect ${params.DOCKER_NETWORK_NAME} >/dev/null 2>&1 || sudo docker network create ${params.DOCKER_NETWORK_NAME}
-
-                                MYSQL_HOST_IP=\$(sudo docker network inspect ${params.DOCKER_NETWORK_NAME} -f '{{(index .IPAM.Config 0).Gateway}}')
-                                if [ -z "\$MYSQL_HOST_IP" ]; then
-                                    MYSQL_HOST_IP=\$(ip -4 addr show eth0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}' | head -1)
-                                fi
-                                echo "MySQL IP: \$MYSQL_HOST_IP"
-
-                                if [ "${params.IS_NEW_SERVICE}" = "false" ]; then
-                                    echo "Eliminando contenedor existente: ${params.SERVICE_TO_DEPLOY}"
-                                    sudo docker stop ${params.SERVICE_TO_DEPLOY} || true
-                                    sudo docker rm ${params.SERVICE_TO_DEPLOY} || true
-                                else
-                                    echo "Servicio nuevo, no se elimina contenedor anterior."
-                                fi
-
-                                echo "Haciendo pull de imagen: ${params.DOCKERHUB_IMAGE_NAME}"
-                                sudo docker pull ${params.DOCKERHUB_IMAGE_NAME}
-
-                                echo "Ejecutando contenedor..."
-                                sudo docker run -d \\
-                                    --name ${params.SERVICE_TO_DEPLOY} \\
-                                    --network ${params.DOCKER_NETWORK_NAME} \\
-                                    ${portMapping} \\
-                                    ${envVars} \\
-                                    -e DATABASE_HOST=\${MYSQL_HOST_IP} \\
-                                    -e DATABASE_USER=${env.MYSQL_USER} \\
-                                    -e DATABASE_PASSWORD=${env.MYSQL_PASSWORD} \\
-                                    -e DATABASE_NAME=${env.MYSQL_DATABASE} \\
-                                    ${params.DOCKERHUB_IMAGE_NAME}
-
-                                echo "Limpiando imágenes viejas..."
-                                sudo docker image prune -f
-
-                                echo "Despliegue finalizado."
-                            """
-
-                            sh "sudo ${deployScript}"
+                            
+                            // Comandos comunes
+                            sh "docker login -u ${DOCKER_USER} -p ${DOCKER_PASS}"
+                            sh "docker pull ${params.DOCKERHUB_IMAGE_NAME}"
+                            
+                            if (!params.IS_NEW_SERVICE) {
+                                sh "docker stop ${params.SERVICE_TO_DEPLOY} || true"
+                                sh "docker rm ${params.SERVICE_TO_DEPLOY} || true"
+                            }
+                            
+                            // Comandos específicos por servicio
+                            switch(params.SERVICE_TO_DEPLOY) {
+                                case 'frontend-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name frontend_service \\
+                                        -p 4200:80 \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                case 'login-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name login_service \\
+                                        -p 3000:3000 \\
+                                        -e DB_HOST=${MYSQL_HOST} \\
+                                        -e DB_USER=${MYSQL_USER} \\
+                                        -e DB_PASSWORD=${MYSQL_PASSWORD} \\
+                                        -e DB_NAME=${MYSQL_DATABASE} \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                case 'upload-service-latest':
+                                    sh """
+                                        docker run -d \\
+                                        --name upload-service-latest \\
+                                        -p 3001:3001 \\
+                                        -e DB_HOST=${MYSQL_HOST} \\
+                                        -e DB_USER=${MYSQL_USER} \\
+                                        -e DB_PASSWORD=${MYSQL_PASSWORD} \\
+                                        -e DB_NAME=${MYSQL_DATABASE} \\
+                                        ${envVars.join(' ')} \\
+                                        ${params.DOCKERHUB_IMAGE_NAME}
+                                    """
+                                    break
+                                default:
+                                    error "Servicio desconocido: ${params.SERVICE_TO_DEPLOY}"
+                            }
                         }
                     }
                 }
