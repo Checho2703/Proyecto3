@@ -21,12 +21,9 @@ pipeline {
     }
 
     stages {
-        stage('Desplegar si es PR a main o ejecución manual') {
+        stage('Desplegar en PR a main') {
             when {
-                anyOf {
-                    changeRequest(target: 'main')
-                    triggeredBy 'UserIdCause'
-                }
+                changeRequest(target: 'main')
             }
             stages {
                 stage('Validar parámetros') {
