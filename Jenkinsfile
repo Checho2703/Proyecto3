@@ -20,7 +20,7 @@ pipeline {
         MYSQL_PASSWORD = credentials('bd_password')
         MYSQL_DATABASE = 'db_main'
     }
-
+    
     stages {
         stage('Desplegar en PR a main') {
             when {
@@ -94,16 +94,45 @@ pipeline {
             }
         }
     }
-
+    
     post {
         always {
-            echo "Pipeline terminado."
+            script {
+                // Limpiar imágenes no utilizadas
+                sh 'docker image prune -f'
+            }
         }
+        
         success {
-            echo "Despliegue exitoso."
+            echo 'Despliegue exitoso de microservicios!'
+            // Opcional: enviar notificación de éxito
+            slackSend(
+                channel: '#deployments',
+                color: 'good',
+                message: "✅ Microservicios desplegados exitosamente en ${env.BUILD_URL}"
+            )
         }
+        
         failure {
-            echo "¡Despliegue fallido!"
+            echo 'Error en el despliegue'
+            // Rollback automático en caso de fallo
+            sh '''
+                echo "Iniciando rollback..."
+                docker stop upload-service list-service login-service subirpdf-service 2>/dev/null || true
+                docker rm upload-service list-service login-service subirpdf-service 2>/dev/null || true
+            '''
+            
+            // Opcional: enviar notificación de error
+            slackSend(
+                channel: '#deployments',
+                color: 'danger',
+                message: "❌ Error en despliegue de microservicios: ${env.BUILD_URL}"
+            )
+        }
+        
+        cleanup {
+            // Limpiar workspace
+            cleanWs()
         }
     }
 }
