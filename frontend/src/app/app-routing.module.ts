@@ -2,13 +2,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
-import { HomeComponent } from './home/home.component'; // Asegúrate de importar HomeComponent
+import { HomeComponent } from './home/home.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'home', component: HomeComponent }, // Ruta para tu página de inicio
-  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Redirige la ruta raíz a login por defecto
-  { path: '**', redirectTo: '/login' } // Opcional: Redirige rutas no encontradas a login
+  { path: 'home', component: HomeComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({

@@ -1,148 +1,190 @@
-<div class="register-container">
-  <h2>Registrar Nuevo Usuario</h2>
+<div class="main-content-area py-4">
+  <div class="container register-container"> <div class="row justify-content-center">
+      <div class="col-12 col-xxl-11 main-content-panel"> <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h4 class="card-title">Menú / Registrar Usuario</h4>
+            <p class="card-text text-muted">Complete los campos para registrar un nuevo usuario en la plataforma.</p>
+          </div>
+        </div>
 
-  <form (ngSubmit)="onRegisterSubmit()">
-    <div class="message-container">
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h2 class="mb-4">Registrar Nuevo Usuario</h2>
+
+            <form (ngSubmit)="onRegisterSubmit()">
+              <div class="message-container mb-3">
+                <div *ngIf="errorMessage" class="error-message alert alert-danger" role="alert">
+                  {{ errorMessage }}
+                </div>
+                <div *ngIf="successMessage" class="success-message alert alert-success" role="alert">
+                  {{ successMessage }}
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-3 col-sm-6"> <div class="form-group">
+                    <label for="rut" class="form-label">RUT:</label>
+                    <input
+                      type="text"
+                      id="rut"
+                      [(ngModel)]="rut"
+                      name="rut"
+                      required
+                      class="form-control"
+                      placeholder="Ej: 12345678-9"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="nombres" class="form-label">Nombres:</label>
+                    <input
+                      type="text"
+                      id="nombres"
+                      [(ngModel)]="nombres"
+                      name="nombres"
+                      required
+                      class="form-control"
+                      placeholder="Ej: Juan Antonio"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="apellidoPaterno" class="form-label">Apellido Paterno:</label>
+                    <input
+                      type="text"
+                      id="apellidoPaterno"
+                      [(ngModel)]="apellido_paterno"
+                      name="apellidoPaterno"
+                      required
+                      class="form-control"
+                      placeholder="Ej: Pérez"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="apellidoMaterno" class="form-label">Apellido Materno (opcional):</label>
+                    <input
+                      type="text"
+                      id="apellidoMaterno"
+                      [(ngModel)]="apellido_materno"
+                      name="apellidoMaterno"
+                      class="form-control"
+                      placeholder="Ej: González"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="correo" class="form-label">Correo Electrónico:</label>
+                    <input
+                      type="email"
+                      id="correo"
+                      [(ngModel)]="correo"
+                      name="correo"
+                      required
+                      class="form-control"
+                      placeholder="Ej: usuario@example.com"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="contrasena" class="form-label">Contraseña:</label>
+                    <input
+                      type="password"
+                      id="contrasena"
+                      [(ngModel)]="contrasena"
+                      name="contrasena"
+                      required
+                      class="form-control"
+                      placeholder="Mínimo 6 caracteres"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="telefono" class="form-label">Teléfono (opcional):</label>
+                    <input
+                      type="tel"
+                      id="telefono"
+                      [(ngModel)]="telefono"
+                      name="telefono"
+                      class="form-control"
+                      placeholder="Ej: +56912345678"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="fechaNac" class="form-label">Fecha de Nacimiento (opcional):</label>
+                    <input
+                      type="date"
+                      id="fechaNac"
+                      [(ngModel)]="fecha_nac"
+                      name="fechaNac"
+                      class="form-control"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mb-4">
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="idRol" class="form-label">Tipo de Usuario (Rol):</label>
+                    <select id="idRol" [(ngModel)]="id_rol" name="idRol" required class="form-select">
+                      <option [ngValue]="null" disabled selected>-- Seleccione un rol --</option>
+                      <option [ngValue]="2">Alumno</option>
+                      <option [ngValue]="1">Docente</option>
+                      <option [ngValue]="3">Apoderado</option>
+                      <option [ngValue]="5">Funcionario</option>
+                      <option [ngValue]="4">Administrador</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group">
+                    <label for="idEstablecimiento" class="form-label">Establecimiento:</label>
+                    <select
+                      id="idEstablecimiento"
+                      [(ngModel)]="id_establecimiento"
+                      name="idEstablecimiento"
+                      required
+                      class="form-select"
+                    >
+                      <option [ngValue]="null" disabled selected>
+                        -- Seleccione un establecimiento --
+                      </option>
+                      <ng-container *ngIf="establecimientos.length > 0; else noEstablecimientos">
+                        <option
+                          *ngFor="let est of establecimientos"
+                          [ngValue]="est.ID_establecimiento"
+                        >
+                          {{ est.Nombre }}
+                        </option>
+                      </ng-container>
+                      <ng-template #noEstablecimientos>
+                        <option [ngValue]="null" disabled>Cargando establecimientos...</option>
+                      </ng-template>
+                    </select>
+                  </div>
+                </div>
+                </div>
+
+              <button type="submit" class="btn btn-primary w-100 mb-2">Registrar Usuario</button>
+              <button type="button" class="btn btn-secondary w-100" (click)="goToHome()">
+                Volver al Menu Principal
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
-      <div *ngIf="successMessage" class="success-message">
-        {{ successMessage }}
-      </div>
     </div>
-
-    <div class="form-group">
-      <label for="rut">RUT:</label>
-      <input
-        type="text"
-        id="rut"
-        [(ngModel)]="rut"
-        name="rut"
-        required
-        placeholder="Ej: 12345678-9"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="nombres">Nombres:</label>
-      <input
-        type="text"
-        id="nombres"
-        [(ngModel)]="nombres"
-        name="nombres"
-        required
-        placeholder="Ej: Juan Antonio"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="apellidoPaterno">Apellido Paterno:</label>
-      <input
-        type="text"
-        id="apellidoPaterno"
-        [(ngModel)]="apellido_paterno"
-        name="apellidoPaterno"
-        required
-        placeholder="Ej: Pérez"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="apellidoMaterno">Apellido Materno (opcional):</label>
-      <input
-        type="text"
-        id="apellidoMaterno"
-        [(ngModel)]="apellido_materno"
-        name="apellidoMaterno"
-        placeholder="Ej: González"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="correo">Correo Electrónico:</label>
-      <input
-        type="email"
-        id="correo"
-        [(ngModel)]="correo"
-        name="correo"
-        required
-        placeholder="Ej: usuario@example.com"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="contrasena">Contraseña:</label>
-      <input
-        type="password"
-        id="contrasena"
-        [(ngModel)]="contrasena"
-        name="contrasena"
-        required
-        placeholder="Mínimo 6 caracteres"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="telefono">Teléfono (opcional):</label>
-      <input
-        type="tel"
-        id="telefono"
-        [(ngModel)]="telefono"
-        name="telefono"
-        placeholder="Ej: +56912345678"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="fechaNac">Fecha de Nacimiento (opcional):</label>
-      <input
-        type="date"
-        id="fechaNac"
-        [(ngModel)]="fecha_nac"
-        name="fechaNac"
-      />
-    </div>
-
-    <div class="form-group">
-      <label for="idRol">Tipo de Usuario (Rol):</label>
-      <select id="idRol" [(ngModel)]="id_rol" name="idRol" required>
-        <option [ngValue]="null" disabled selected>-- Seleccione un rol --</option>
-        <option [ngValue]="3">Alumno</option>
-        <option [ngValue]="2">Docente</option>
-        <option [ngValue]="4">Apoderado</option>
-        <option [ngValue]="5">Funcionario</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-      <label for="idEstablecimiento">Establecimiento:</label>
-      <select
-        id="idEstablecimiento"
-        [(ngModel)]="id_establecimiento"
-        name="idEstablecimiento"
-        required
-      >
-        <option [ngValue]="null" disabled selected>
-          -- Seleccione un establecimiento --
-        </option>
-        <ng-container *ngIf="establecimientos.length > 0; else noEstablecimientos">
-          <option
-            *ngFor="let est of establecimientos"
-            [ngValue]="est.ID_establecimiento"
-          >
-            {{ est.Nombre }}
-          </option>
-        </ng-container>
-        <ng-template #noEstablecimientos>
-          <option [ngValue]="null" disabled>Cargando establecimientos...</option>
-        </ng-template>
-      </select>
-    </div>
-
-    <button type="submit" class="btn-register">Registrar</button>
-
-    <button type="button" class="btn-secondary" (click)="goToLogin()">
-      Ya tengo una cuenta / Volver al Login
-    </button>
-  </form>
+  </div>
 </div>

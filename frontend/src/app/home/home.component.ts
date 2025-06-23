@@ -9,7 +9,9 @@ import { Router } from '@angular/router'; // Importar Router
 })
 export class HomeComponent implements OnInit {
   userRole: string | null = null;
-  userName: string | null = null;
+  // userName ya no es necesario aquí si solo se usa en la navbar global
+  // userName: string | null = null; // ELIMINAR ESTA LÍNEA
+
   isAdministrator: boolean = false;
   isAlumno: boolean = false;
   isDocente: boolean = false;
@@ -20,26 +22,29 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.userRole = localStorage.getItem('userRole');
-    this.userName = localStorage.getItem('userName');
+    // this.userName = localStorage.getItem('userName'); // ELIMINAR ESTA LÍNEA
 
-    if (this.userRole === '1') { // Ajusta '1' al ID de rol de administrador que uses
-      this.isDocente = true;
-    }else {
-      if(this.userRole === '2') {
+    // Lógica de asignación de roles basada en ID (ajustada para ser más limpia)
+    switch (this.userRole) {
+      case '1': // ID para Docente, según tu código
+        this.isDocente = true;
+        break;
+      case '2': // ID para Alumno, según tu código
         this.isAlumno = true;
-      }else {
-        if(this.userRole === '3') {
+        break;
+      case '3': // ID para Apoderado, según tu código
         this.isApoderado = true;
-      }else{
-        if(this.userRole === '4') {
-          this.isAdministrator = true;
-        }else {
-          if(this.userRole === '5'){
-            this.isFuncionario = true;
-          }
-        }
-      }
-    }
+        break;
+      case '4': // ID para Administrador, según tu código
+        this.isAdministrator = true;
+        break;
+      case '5': // ID para Funcionario, según tu código
+        this.isFuncionario = true;
+        break;
+      default:
+        // Si el rol no coincide con ninguno, o es nulo
+        this.router.navigate(['/login']); // Redirige si el rol no es válido o no está presente
+        break;
     }
 
     console.log('User Role:', this.userRole);
@@ -49,21 +54,21 @@ export class HomeComponent implements OnInit {
     console.log('Is Apoderado:', this.isApoderado);
     console.log('Is Funcionario:', this.isFuncionario);
 
-    //Manda a login si no hay rol (usuario no logueado)
-    if (!this.userRole) {
-      this.router.navigate(['/login']);
-    }
+    // La redirección a login si no hay rol ya está cubierta en el switch-case default
+    // if (!this.userRole) {
+    //   this.router.navigate(['/login']);
+    // }
   }
 
-  logout(): void {
-    localStorage.removeItem('userRole'); // Limpia el rol
-    localStorage.removeItem('userName'); // Limpia el nombre
-    localStorage.removeItem('userId');   // Limpia el ID del usuario
-    // Limpia cualquier otra cosa que hayas guardado del usuario
-    this.router.navigate(['/login']); // Redirige de vuelta a la página de login
-  }
+  // ELIMINAR LA FUNCIÓN logout() DE AQUÍ, YA QUE AHORA ESTARÁ EN app.component.ts
+  // logout(): void {
+  //   localStorage.removeItem('userRole');
+  //   localStorage.removeItem('userName');
+  //   localStorage.removeItem('userId');
+  //   this.router.navigate(['/login']);
+  // }
 
-  goToRegister() {
+  goToRegister(): void { // Cambiado a void para consistencia
     this.router.navigate(['/register']);
   }
 }

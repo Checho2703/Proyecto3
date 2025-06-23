@@ -1,187 +1,89 @@
 /* src/app/home/home.component.css */
 
-/* Variables para mantener la consistencia de colores */
-:root {
-    --primary-blue: #007bff;
-    --secondary-blue: #0056b3;
-    --light-bg-color: #f8f9fa;
-    --card-border-color: #e9ecef;
-    --text-dark: #343a40;
-    --success-light-bg: #d4edda;
-    --success-dark-text: #155724;
-    --navbar-height: 56px;
-    /* Altura estándar de la navbar de Bootstrap. Ajusta si tu navbar tiene una altura diferente. */
-    --footer-height: 60px;
-    /* Altura estimada de tu footer */
-}
-
-/* Aplicar flexbox al body para que el footer se mantenga abajo */
-html,
-body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--light-bg-color);
-    /* ELIMINAR padding-top de aquí si lo pones en .main-content-area */
-    /* padding-top: var(--navbar-height);  <-- REMOVE THIS LINE if present here */
-}
-
-/* El :host del componente es el que debe tener el min-height y el layout general */
+/* El host del componente (<app-home>) debe ser flexible para ocupar el espacio central */
 :host {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    /* Asegura que el componente ocupe toda la altura de la ventana */
-}
-
-/* Estilos de la barra de navegación */
-.navbar {
-    z-index: 1000;
-    /* Ya lo tienes en HTML, pero bueno recordarlo */
-    top: 0;
-    width: 100%;
+    flex: 1;
+    /* Esto le permite ocupar el espacio entre la navbar y el footer */
 }
 
 /* Contenedor principal del contenido */
 .main-content-area {
     flex: 1;
-    /* Ocupa el espacio restante disponible */
+    /* Ocupa el espacio restante disponible dentro del componente */
     background-color: var(--light-bg-color);
-    /* AQUI es donde debe ir el padding-top para que el contenido no se superponga */
+    /* Fondo del área de contenido */
+    /* Importante: padding-top para que el contenido no se oculte debajo de la navbar fija */
     padding-top: calc(var(--navbar-height) + 1.5rem);
-    /* Altura de la navbar + un padding extra */
+    /* Altura de la navbar + padding */
     padding-bottom: 1.5rem;
-    /* Padding vertical general */
+    /* Padding en la parte inferior */
 }
 
-/* Resto de tu CSS (tarjetas, sidebar, etc.) */
-
-/* Estilos para las tarjetas y paneles */
-.card {
-    border-radius: 0.75rem;
-    border: 1px solid var(--card-border-color);
-}
-
-.card-header {
-    border-bottom: 1px solid var(--card-border-color);
+/* Estilos específicos de la barra lateral */
+.sidebar-panel {
     background-color: #ffffff;
-}
-
-.card-title {
-    color: var(--text-dark);
-    font-weight: 600;
-    margin-bottom: 1rem;
+    /* Fondo blanco para el panel lateral */
+    border-right: 1px solid var(--card-border-color);
+    /* Separador visual */
+    padding: 1rem;
 }
 
 .sidebar-panel .list-group-item {
     border: none;
+    /* Eliminar bordes de los items de la lista si no son necesarios */
     padding-left: 0;
+    /* Quitar padding por defecto si molesta */
     padding-right: 0;
 }
 
 .sidebar-panel .list-group-item a {
     color: var(--primary-blue);
     font-weight: 500;
+    transition: color 0.2s ease-in-out;
 }
 
 .sidebar-panel .list-group-item a:hover {
     color: var(--secondary-blue);
-    text-decoration: underline;
+    text-decoration: none;
+    /* Mantener la consistencia con Bootstrap */
 }
 
+/* Estilos para el panel principal de contenido */
+.main-content-panel {
+    padding-left: 1.5rem;
+    /* Separación de la barra lateral */
+}
+
+/* Estilos para las tarjetas de características (Cursos, Notas, etc.) */
 .feature-card {
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    /* Sombra más pronunciada */
 }
 
-.feature-card .btn {
-    font-size: 0.85rem;
-    padding: 0.5rem 1rem;
-}
-
-.bg-light-green {
-    background-color: var(--success-light-bg);
-    border-color: var(--success-dark-text);
-}
-
-.bg-light-green .card-title {
-    color: var(--success-dark-text);
-}
-
-/* Estilos para el footer */
-.footer {
-    width: 100%;
-    /* ¡CAMBIADO A NEGRO O GRIS OSCURO! */
-    background-color: rgb(128, 200, 239); /* Puedes usar 'black' para un negro puro */
-    /* O si prefieres el gris muy oscuro de Bootstrap (como bg-dark): */
-    /* background-color: #212529; */
-    /* O si quieres usar la variable para el texto oscuro que ya tienes: */
-    /* background-color: var(--text-dark); */
-    color: white;
-    padding: 1rem 0;
-    margin-top: auto; /* Empuja el footer hacia abajo */
-}
-
-
-/* Pequeños ajustes para responsividad */
+/* Media Queries para responsividad */
 @media (max-width: 767.98px) {
     .main-content-area {
         padding-top: calc(var(--navbar-height) + 1rem);
-        /* Ajusta padding para móviles */
+        /* Reduce padding en móviles */
         padding-bottom: 1rem;
     }
 
     .col-md-3.d-none.d-md-block {
         display: none !important;
+        /* Asegura que la sidebar se oculte en móviles */
     }
 
-    .col-md-9 {
-        width: 100%;
-        flex: none;
-        max-width: 100%;
+    .main-content-panel {
         padding-left: 0.75rem;
+        /* Ajusta padding para el panel principal en móviles */
         padding-right: 0.75rem;
-    }
-
-    .navbar-brand {
-        font-size: 1rem;
-    }
-
-    .navbar-text {
-        font-size: 0.85rem;
-    }
-
-    .btn-outline-light {
-        font-size: 0.85rem;
-        padding: 0.375rem 0.75rem;
-    }
-
-    .navbar-collapse {
-        flex-grow: 1;
-    }
-
-    .navbar-nav {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-    }
-
-    .navbar-nav .nav-item {
-        margin-left: 0;
-        margin-bottom: 0.5rem;
-    }
-
-    .navbar-text.me-3 {
-        margin-right: 0 !important;
-        margin-bottom: 0.5rem;
     }
 }
