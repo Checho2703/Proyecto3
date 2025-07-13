@@ -54,21 +54,13 @@ export class HomeComponent implements OnInit {
     console.log('Is Apoderado:', this.isApoderado);
     console.log('Is Funcionario:', this.isFuncionario);
 
-    // La redirección a login si no hay rol ya está cubierta en el switch-case default
-    // if (!this.userRole) {
-    //   this.router.navigate(['/login']);
-    // }
   }
-
-  // ELIMINAR LA FUNCIÓN logout() DE AQUÍ, YA QUE AHORA ESTARÁ EN app.component.ts
-  // logout(): void {
-  //   localStorage.removeItem('userRole');
-  //   localStorage.removeItem('userName');
-  //   localStorage.removeItem('userId');
-  //   this.router.navigate(['/login']);
-  // }
 
   goToRegister(): void { // Cambiado a void para consistencia
     this.router.navigate(['/register']);
+  }
+
+  goToSearchP(): void {
+    this.router.navigate(['/users/search']);
   }
 }

@@ -1,0 +1,133 @@
+<div class="main-content-area py-4">
+    <div class="container user-search-container">
+        <div class="row justify-content-center">
+            <div class="col-12 main-content-panel">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Usuarios / Búsqueda Avanzada</h4>
+                        <p class="card-text text-muted">Encuentra usuarios específicos utilizando múltiples criterios de
+                            búsqueda.</p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Filtros de Búsqueda</h5>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="rutBusqueda" class="form-label">RUT:</label>
+                                <input type="text" id="rutBusqueda" class="form-control" [(ngModel)]="rutBusqueda"
+                                    placeholder="Ej: 12345678-9">
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="comunaSelect" class="form-label">Comuna:</label>
+                                <select id="comunaSelect" class="form-select" [(ngModel)]="selectedComuna">
+                                    <option [ngValue]="null" disabled selected>Selecciona una comuna</option>
+                                    <option *ngFor="let comuna of comunas" [ngValue]="comuna">{{ comuna }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="colegioSelect" class="form-label">Colegio:</label>
+                                <select id="colegioSelect" class="form-select" [(ngModel)]="selectedColegio">
+                                    <option [ngValue]="null" disabled selected>Selecciona un colegio</option>
+                                    <option *ngFor="let colegio of colegiosOpciones" [ngValue]="colegio">{{ colegio }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="cursoSelect" class="form-label">Curso:</label>
+                                <select id="cursoSelect" class="form-select" [(ngModel)]="selectedCurso">
+                                    <option [ngValue]="null" disabled selected>Selecciona un curso</option>
+                                    <option *ngFor="let curso of cursosOpciones" [ngValue]="curso">{{ curso }}</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <label for="asignaturaSelect" class="form-label">Asignatura:</label>
+                                <select id="asignaturaSelect" class="form-select" [(ngModel)]="selectedAsignatura">
+                                    <option [ngValue]="null" disabled selected>Selecciona una asignatura</option>
+                                    <option *ngFor="let asignatura of asignaturasOpciones" [ngValue]="asignatura">{{
+                                        asignatura }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button class="btn btn-secondary me-md-2" type="button" (click)="clearFilters()">Limpiar
+                                Filtros</button>
+                            <button class="btn btn-primary" type="button" (click)="searchUsers()"
+                                [disabled]="loadingSearch">
+                                <span *ngIf="loadingSearch" class="spinner-border spinner-border-sm me-2" role="status"
+                                    aria-hidden="true"></span>
+                                {{ loadingSearch ? 'Buscando...' : 'Buscar Usuarios' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+                    {{ errorMessage }}
+                </div>
+                <div *ngIf="noResultsMessage && !errorMessage" class="alert alert-info mt-3" role="alert">
+                    {{ noResultsMessage }}
+                </div>
+
+
+                <div *ngIf="usuariosEncontrados.length > 0 && !loadingSearch" class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Resultados de la Búsqueda ({{ usuariosEncontrados.length }}
+                            usuarios)</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>RUT</th>
+                                        <th>Nombres</th>
+                                        <th>Apellidos</th>
+                                        <th>Correo</th>
+                                        <th>Teléfono</th>
+                                        <th>Rol</th>
+                                        <th>Establecimiento</th>
+                                        <th>Comuna</th>
+                                        <th>Curso</th>
+                                        <th>Asignatura</th>
+                                        <th>Estado</th>
+                                        <th>Fecha Nac.</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let user of usuariosEncontrados">
+                                        <td>{{ user.Rut }}</td>
+                                        <td>{{ user.Nombres }}</td>
+                                        <td>{{ user.Apellido_Paterno }} {{ user.Apellido_Materno || '' }}</td>
+                                        <td>{{ user.Correo }}</td>
+                                        <td>{{ user.Telefono || 'N/A' }}</td>
+                                        <td>{{ user.Nombre_rol }}</td>
+                                        <td>{{ user.Establecimiento }}</td>
+                                        <td>{{ user.Comuna }}</td>
+                                        <td>{{ user.Nombre_curso || 'N/A' }}</td>
+                                        <td>{{ user.Asignatura || 'N/A' }}</td>
+                                        <td>{{ user.Estado }}</td>
+                                        <td>{{ user.Fecha_nac ? (user.Fecha_nac | date:'dd/MM/yyyy') : 'N/A' }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="loadingSearch" class="text-center mt-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando usuarios...</span>
+                    </div>
+                    <p class="mt-2">Buscando usuarios...</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

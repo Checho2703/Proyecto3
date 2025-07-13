@@ -14,7 +14,7 @@
                             <li class="list-group-item" *ngIf="isAlumno">
                                 <a routerLink="/notas" class="text-decoration-none">Mis Notas</a> </li>
                             <li class="list-group-item" *ngIf="isAdministrator">
-                                <a routerLink="/usuarios" class="text-decoration-none">Gestionar Usuarios</a> </li>
+                                <a routerLink="/users/search" class="text-decoration-none">Gestionar Usuarios</a> </li>
                             <li class="list-group-item" *ngIf="isAdministrator">
                                 <a routerLink="/register" class="text-decoration-none text-success">Registrar Nuevo Usuario</a>
                             </li>
@@ -66,7 +66,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">Gestionar Usuarios</h5>
                                 <p class="card-text text-muted">Revisa los usuarios registrados en el sistema.</p>
-                                <button class="btn btn-info btn-sm" routerLink="/usuarios">Gestionar Usuarios</button>
+                                <button class="btn btn-info btn-sm" (click)="goToSearchP()">Gestionar Usuarios</button>
                             </div>
                         </div>
                     </div>

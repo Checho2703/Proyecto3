@@ -1,0 +1,122 @@
+/* src/app/user-search/user-search.component.css */
+
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.main-content-area {
+    flex: 1;
+    background-color: var(--light-bg-color);
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+    padding-bottom: 1.5rem;
+}
+
+.user-search-container {
+    max-width: 1800px;
+    /* Ancho máximo para la tabla de resultados (ajusta según necesites) */
+}
+
+/* Estilos para los selectores y inputs */
+.form-label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.form-control,
+.form-select {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    height: auto;
+    min-height: calc(1em + 0.5rem * 2 + 2px);
+}
+
+/* Estilos de la tabla de resultados */
+.table {
+    font-size: 0.85rem;
+    /* Fuente un poco más pequeña para muchas columnas */
+}
+
+.table th,
+.table td {
+    padding: 0.6rem;
+    /* Padding más compacto en celdas */
+    vertical-align: middle;
+    /* Centrar verticalmente el contenido */
+}
+
+.table thead th {
+    background-color: #e9ecef;
+    border-bottom: 2px solid var(--border-color-ubd);
+}
+
+/* Estilos para los botones */
+.btn {
+    font-size: 0.9rem;
+    /* Un poco más pequeños que los grandes por defecto */
+    padding: 0.5rem 1rem;
+}
+
+/* Responsividad general */
+@media (max-width: 991.98px) {
+
+    /* Tabletas y laptops pequeñas */
+    .user-search-container {
+        max-width: 90%;
+        /* Ajuste de ancho */
+    }
+
+    .col-md-3 {
+        /* Cambia a 2 columnas por fila */
+        width: 50%;
+        flex: 0 0 auto;
+        margin-bottom: 1rem;
+        /* Añade espacio entre campos apilados */
+    }
+
+    .d-md-flex {
+        /* Asegura que los botones se apilen en pantallas más pequeñas */
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .d-md-flex .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        /* Espacio entre botones apilados */
+    }
+
+    .d-md-flex .me-md-2 {
+        margin-right: 0 !important;
+        /* Elimina margen derecho en móviles */
+    }
+}
+
+@media (max-width: 767.98px) {
+
+    /* Móviles */
+    .main-content-area {
+        padding-top: calc(var(--navbar-height) + 1rem);
+        padding-bottom: 1rem;
+    }
+
+    .main-content-panel {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .user-search-container {
+        max-width: 100%;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .col-md-3 {
+        /* Se apilan a 1 columna */
+        width: 100%;
+        flex: 0 0 auto;
+        margin-bottom: 1rem;
+    }
+}
