@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 export interface Establecimiento {
   ID_establecimiento: number;
   Nombre: string;
-  // Puedes añadir más propiedades si las necesitas, como Tipo_establecimiento, etc.
 }
 
 @Injectable({

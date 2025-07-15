@@ -212,12 +212,13 @@ CREATE TABLE IF NOT EXISTS Mensaje (
   FOREIGN KEY (ID_establecimiento) REFERENCES Establecimiento(ID_establecimiento)
 );
 
--- Inserciones de prueba
+
+-- Antes de insertar usuarios, inserta todos los roles
 INSERT INTO Rol_usuario (Nombre_rol) VALUES 
-('Docente'),
-('Alumno'),
-('Apoderado'),
-('Administrador');
+('Administrador'),    -- ID_rol = 1
+('Docente'),         -- ID_rol = 2
+('Alumno'),          -- ID_rol = 3
+('Apoderado'),       -- ID_rol = 4
 
 -- 2. Establecimientos
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
