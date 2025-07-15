@@ -8,6 +8,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { HomeComponent } from './home/home.component';
+import { UserSearchComponent } from './user-search/user-search.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -18,7 +20,9 @@ const routes: Routes = [
   declarations: [
     AppComponent,
     LoginComponent,
-    RegisterComponent
+    RegisterComponent,
+    HomeComponent,
+    UserSearchComponent
   ],
   imports: [
     BrowserModule,

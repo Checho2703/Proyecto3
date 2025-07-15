@@ -1,95 +1,141 @@
-/* src/app/register/register.component.css */
-
-.register-container {
-    max-width: 500px;
-    margin: 50px auto;
-    padding: 30px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-h2 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 25px;
+.main-content-area {
+    flex: 1;
+    background-color: var(--light-bg-color);
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+    padding-bottom: 1.5rem;
+}
+
+/* Ajusta el ancho máximo para acomodar 4 columnas cómodamente */
+.register-container {
+    max-width: 1400px;
+    /* Incrementado para 4 columnas. Ajusta según sea necesario. */
+    /* Este ancho es para el contenedor total del formulario */
+}
+
+/* Hacer los campos de formulario más compactos en altura */
+.form-control,
+.form-select {
+    font-size: 0.875rem;
+    /* Fuente un poco más pequeña */
+    padding: 0.5rem 0.75rem;
+    /* REDUCIDO: Padding vertical y horizontal */
+    border-radius: 0.375rem;
+    /* Bordes ligeramente más pequeños */
+    height: auto;
+    /* Asegura que la altura se ajuste al contenido */
+    min-height: calc(1em + 0.5rem * 2 + 2px);
+    /* Altura mínima basada en font-size + padding + border */
+}
+
+.form-label {
+    font-size: 0.85rem;
+    /* Etiquetas de formulario ligeramente más pequeñas */
+    margin-bottom: 0.25rem;
+    /* REDUCIDO: Menos espacio entre label y input */
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 0.75rem;
+    /* REDUCIDO: Menos espacio entre grupos de formulario */
 }
 
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #555;
+
+/* Hacer los botones más compactos en altura */
+.btn {
+    font-size: 0.9rem;
+    /* Fuente del botón ligeramente más pequeña */
+    padding: 0.6rem 1rem;
+    /* REDUCIDO: Padding vertical y horizontal del botón */
+    border-radius: 0.3rem;
+    /* Bordes ligeramente más pequeños */
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="tel"],
-input[type="date"],
-input[type="number"],
-select {
-    width: calc(100% - 20px); /* Ajuste para el padding */
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box; /* Incluye padding y border en el ancho total */
-    font-size: 1rem;
+
+/* Media Queries para responsividad */
+
+/* Para pantallas extra-grandes (xxl, >1400px) */
+@media (min-width: 1400px) {
+    .col-xxl-11 {
+        max-width: 91.66666667%;
+        /* 11 de 12 columnas */
+    }
 }
 
-/* Estilos para mensajes de error/éxito (pueden ser los mismos que en login.component.css) */
-.message-container {
-    margin-top: 15px;
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 4px;
-    font-weight: bold;
-    text-align: center;
+/* Para pantallas grandes (xl, <1400px) */
+@media (max-width: 1399.98px) {
+    .register-container {
+        max-width: 1200px;
+        /* Reducimos el ancho si la pantalla es más pequeña */
+    }
+
+    /* En XL, las col-md-3 aún intentarán mantener 4 columnas, pero si el contenido no cabe, se ajustará Bootstrap */
 }
 
-.error-message {
-    background-color: #f8d7da; /* Fondo rojo claro */
-    color: #721c24; /* Texto rojo oscuro */
-    border: 1px solid #f5c6cb;
+/* Para pantallas de escritorio/laptop (lg, <1200px) - Posiblemente pasará a 3 o 2 columnas */
+@media (max-width: 1199.98px) {
+    .register-container {
+        max-width: 992px;
+        /* Ajuste para LG */
+    }
+
+    /* col-md-3 se apilará a 2 o 1 columna dependiendo del ancho */
+    .col-md-3 {
+        width: 50%;
+        /* Dos columnas por fila en pantallas 'lg' o 'md' */
+        flex: 0 0 auto;
+    }
 }
 
-.success-message {
-    background-color: #d4edda; /* Fondo verde claro */
-    color: #155724; /* Texto verde oscuro */
-    border: 1px solid #c3e6cb;
+/* Para pantallas medianas (md, <992px) - Se apilarán a 2 columnas */
+@media (max-width: 991.98px) {
+    .register-container {
+        max-width: 768px;
+        /* Ajuste para MD */
+    }
+
+    .col-md-3 {
+        /* Asegura que en MD y hacia abajo, se comporte como col-sm-6 */
+        width: 50%;
+        flex: 0 0 auto;
+    }
+
+    .col-sm-6 {
+        /* Mantener la consistencia si ya usaste col-sm-6 en el HTML */
+        width: 50%;
+        flex: 0 0 auto;
+    }
 }
 
-.btn-register,
-.btn-secondary {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s ease;
-}
+/* Para pantallas pequeñas (sm, <768px) - Se apilarán a 1 columna */
+@media (max-width: 767.98px) {
+    .main-content-area {
+        padding-top: calc(var(--navbar-height) + 1rem);
+        padding-bottom: 1rem;
+    }
 
-.btn-register {
-    background-color: #007bff; /* Azul primario */
-    color: white;
-}
+    .main-content-panel {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
 
-.btn-register:hover {
-    background-color: #0056b3;
-}
+    .register-container {
+        max-width: 100%;
+        /* El contenedor se expande en móviles */
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
 
-.btn-secondary {
-    background-color: #6c757d; /* Gris secundario */
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
+    /* Asegura que las columnas se apilen correctamente en móviles */
+    .col-md-3,
+    .col-sm-6 {
+        /* Ambos se convierten en una columna */
+        width: 100%;
+        flex: 0 0 auto;
+    }
 }

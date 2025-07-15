@@ -5,14 +5,13 @@ import { Observable } from 'rxjs';
 export interface Establecimiento {
   ID_establecimiento: number;
   Nombre: string;
-  // Puedes añadir más propiedades si las necesitas, como Tipo_establecimiento, etc.
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private API_URL = 'http://localhost:3000'; // Asegúrate de que esta URL sea correcta
+  private API_URL = 'http://localhost:3000';
 
   constructor(private http: HttpClient) { }
 
