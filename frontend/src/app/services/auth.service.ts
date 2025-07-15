@@ -12,7 +12,7 @@ export interface Establecimiento {
   providedIn: 'root'
 })
 export class AuthService {
-  private API_URL = 'http://3.142.149.94:3000'; // Asegúrate de que esta URL sea correcta
+  private API_URL = 'http://localhost:3000';
 
   constructor(private http: HttpClient) { }
 
