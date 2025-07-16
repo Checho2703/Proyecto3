@@ -218,7 +218,7 @@ INSERT INTO Rol_usuario (Nombre_rol) VALUES
 ('Administrador'),    -- ID_rol = 1
 ('Docente'),         -- ID_rol = 2
 ('Alumno'),          -- ID_rol = 3
-('Apoderado'),       -- ID_rol = 4
+('Apoderado');       -- ID_rol = 4
 
 -- 2. Establecimientos
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
