@@ -92,7 +92,7 @@ jobs:
           script: |
             echo "Conectado a Pacheco. Desplegando Frontend desde main..."
 
-            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}mis-servicios:frontend-service-latest" 
+            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/frontend-service-latest:latest" 
 
             echo "Deteniendo y eliminando contenedor 'angular_frontend' existente..."
             docker stop angular_frontend || true
