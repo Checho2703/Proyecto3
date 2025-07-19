@@ -3,8 +3,12 @@ name: CD Selectivo a Pacheco (Desde Main)
 on:
   push:
     branches:
-      - main 
-  workflow_dispatch: 
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
   deploy-login-service:
@@ -18,12 +22,20 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
+      # -- PASOS DE CONSTRUCCIÓN Y PUSH DE IMAGEN DEL LOGIN-SERVICE (EN RUNNER DE GITHUB ACTIONS) --
+      - name: Build login-service image
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest ./backend/login-service
+
       - name: Login a Docker Hub (en Runner de GA)
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      - name: Push login-service image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
+
+      # -- PASO DE DESPLIEGUE DEL LOGIN-SERVICE EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
       - name: Desplegar Login Service en Pacheco via SSH
         uses: appleboy/ssh-action@v1.0.1
         with:
@@ -31,48 +43,45 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "Conectado a Pacheco. Desplegando Login Service desde main..."
+            echo "Conectado a Pacheco. Desplegando Login Service con Docker Compose..."
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-            LOGIN_IMAGE_NAME="${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest"
+            DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Deteniendo y eliminando contenedor 'login_service' existente..."
-            docker stop login_service || true
-            docker rm login_service || true
+            echo "Deteniendo y eliminando el servicio 'login_service' usando Docker Compose..."
 
-            echo "Eliminando imagen Docker vieja del login-service (si existe)..."
-            docker rmi $LOGIN_IMAGE_NAME || true
+            docker-compose -f $DOCKER_COMPOSE_PATH stop login_service || true
+            docker-compose -f $DOCKER_COMPOSE_PATH rm -f login_service || true
 
-            echo "Descargando la imagen más reciente de Docker Hub: $LOGIN_IMAGE_NAME"
-            docker pull $LOGIN_IMAGE_NAME
+            echo "Descargando la imagen más reciente de 'login_service' desde Docker Hub con Compose..."
+            docker-compose -f $DOCKER_COMPOSE_PATH pull login_service
 
-            echo "Ejecutando la nueva imagen del login-service..."
-            docker run -d \
-              --name login_service \
-              -p 50000:3000 \
-              -e DB_HOST=db \
-              -e DB_USER=root \
-              -e DB_PASSWORD=1234 \
-              -e DB_NAME=db_main \
-              --network red_proyecto3 \
-              $LOGIN_IMAGE_NAME
+            echo "Levantando el servicio 'login_service' con Docker Compose en modo detached..."
+            docker-compose -f $DOCKER_COMPOSE_PATH up -d login_service
 
-            echo "Despliegue de Login Service completado. Verificando estado..."
+            echo "Despliegue de Login Service completado. Verificando estado en Pacheco..."
             docker ps -f name=login_service
-            echo "Logs recientes de login-service:"
+            echo "Logs recientes de login-service en Pacheco:"
             docker logs login_service --tail 20
 
   deploy-frontend:
     runs-on: ubuntu-latest
+    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el frontend o si se dispara manualmente
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'frontend/') ||
       contains(github.event.commits[0].added, 'frontend/') ||
       contains(github.event.commits[0].removed, 'frontend/')
+
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
+
+      # -- PASOS DE CONSTRUCCIÓN Y PUSH DE IMAGEN DEL FRONTEND (EN RUNNER DE GITHUB ACTIONS) --
+      - name: Build frontend image
+        # Ruta correcta a tu Dockerfile del frontend
+        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
 
       - name: Login a Docker Hub (en Runner de GA)
         uses: docker/login-action@v3
@@ -80,6 +89,10 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      - name: Push frontend image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
+
+      # -- PASO DE DESPLIEGUE DEL FRONTEND EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
       - name: Desplegar Frontend en Pacheco via SSH
         uses: appleboy/ssh-action@v1.0.1
         with:
@@ -87,32 +100,24 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "Conectado a Pacheco. Desplegando Frontend desde main..."
+            echo "Conectado a Pacheco. Desplegando Frontend con Docker Compose..."
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest"
+            DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Usando imagen: $FRONTEND_IMAGE_NAME"
+            echo "Deteniendo y eliminando el servicio 'angular_frontend' usando Docker Compose..."
 
-            echo "Deteniendo y eliminando contenedor 'angular_frontend' existente..."
-            docker stop angular_frontend || true
-            docker rm angular_frontend || true
+            docker-compose -f $DOCKER_COMPOSE_PATH stop angular_frontend || true
+            docker-compose -f $DOCKER_COMPOSE_PATH rm -f angular_frontend || true
 
-            echo "Eliminando imagen Docker vieja del frontend (si existe)..."
-            docker rmi $FRONTEND_IMAGE_NAME || true
+            echo "Descargando la imagen más reciente de 'angular_frontend' desde Docker Hub con Compose..."
+            docker-compose -f $DOCKER_COMPOSE_PATH pull angular_frontend
 
-            echo "Descargando la imagen más reciente de Docker Hub: $FRONTEND_IMAGE_NAME"
-            docker pull $FRONTEND_IMAGE_NAME
+            echo "Levantando el servicio 'angular_frontend' con Docker Compose en modo detached..."
+            docker-compose -f $DOCKER_COMPOSE_PATH up -d angular_frontend
 
-            echo "Ejecutando la nueva imagen del frontend..."
-            docker run -d \
-              --name angular_frontend \
-              -p 8008:80 \
-              --network red_proyecto3 \
-              $FRONTEND_IMAGE_NAME
-
-            echo "Despliegue de Frontend completado. Verificando estado..."
+            echo "Despliegue de Frontend completado. Verificando estado en Pacheco..."
             docker ps -f name=angular_frontend
-            echo "Logs recientes de frontend:"
+            echo "Logs recientes de frontend en Pacheco:"
             docker logs angular_frontend --tail 20
