@@ -1,6 +1,5 @@
 name: CD Selectivo a Pacheco (Desde Main)
 
-# Define cuándo se ejecutará este workflow
 on:
   push:
     branches:
@@ -8,10 +7,8 @@ on:
   workflow_dispatch: 
 
 jobs:
-  # --- Job para Login Service ---
   deploy-login-service:
     runs-on: ubuntu-latest
-    # CONDICIONAL: Solo se ejecuta si hay cambios en la carpeta del login-service
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'backend/login-service/') ||
@@ -35,6 +32,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             echo "Conectado a Pacheco. Desplegando Login Service desde main..."
+
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
             LOGIN_IMAGE_NAME="${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest"
 
@@ -64,10 +63,8 @@ jobs:
             echo "Logs recientes de login-service:"
             docker logs login_service --tail 20
 
-  # --- Job para Frontend ---
   deploy-frontend:
     runs-on: ubuntu-latest
-    # CONDICIONAL: Solo se ejecuta si hay cambios en la carpeta del frontend
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'frontend/') ||
@@ -92,7 +89,11 @@ jobs:
           script: |
             echo "Conectado a Pacheco. Desplegando Frontend desde main..."
 
-            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/frontend-service-latest:latest" 
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+
+            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/frontend-service-latest:latest"
+
+            echo "Usando imagen: $FRONTEND_IMAGE_NAME"
 
             echo "Deteniendo y eliminando contenedor 'angular_frontend' existente..."
             docker stop angular_frontend || true
