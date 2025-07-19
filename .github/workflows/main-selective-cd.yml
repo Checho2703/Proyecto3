@@ -91,7 +91,7 @@ jobs:
 
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/frontend-service-latest:latest"
+            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest"
 
             echo "Usando imagen: $FRONTEND_IMAGE_NAME"
 
