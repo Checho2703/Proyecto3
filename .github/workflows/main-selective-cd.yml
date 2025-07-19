@@ -1,0 +1,117 @@
+name: CD Selectivo a Pacheco (Desde Main)
+
+# Define cuándo se ejecutará este workflow
+on:
+  push:
+    branches:
+      - main 
+  workflow_dispatch: 
+
+jobs:
+  # --- Job para Login Service ---
+  deploy-login-service:
+    runs-on: ubuntu-latest
+    # CONDICIONAL: Solo se ejecuta si hay cambios en la carpeta del login-service
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.commits[0].modified, 'backend/login-service/') ||
+      contains(github.event.commits[0].added, 'backend/login-service/') ||
+      contains(github.event.commits[0].removed, 'backend/login-service/')
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Login a Docker Hub (en Runner de GA)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Desplegar Login Service en Pacheco via SSH
+        uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Conectado a Pacheco. Desplegando Login Service desde main..."
+
+            LOGIN_IMAGE_NAME="${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest"
+
+            echo "Deteniendo y eliminando contenedor 'login_service' existente..."
+            docker stop login_service || true
+            docker rm login_service || true
+
+            echo "Eliminando imagen Docker vieja del login-service (si existe)..."
+            docker rmi $LOGIN_IMAGE_NAME || true
+
+            echo "Descargando la imagen más reciente de Docker Hub: $LOGIN_IMAGE_NAME"
+            docker pull $LOGIN_IMAGE_NAME
+
+            echo "Ejecutando la nueva imagen del login-service..."
+            docker run -d \
+              --name login_service \
+              -p 50000:3000 \
+              -e DB_HOST=db \
+              -e DB_USER=root \
+              -e DB_PASSWORD=1234 \
+              -e DB_NAME=db_main \
+              --network red_proyecto3 \
+              $LOGIN_IMAGE_NAME
+
+            echo "Despliegue de Login Service completado. Verificando estado..."
+            docker ps -f name=login_service
+            echo "Logs recientes de login-service:"
+            docker logs login_service --tail 20
+
+  # --- Job para Frontend ---
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    # CONDICIONAL: Solo se ejecuta si hay cambios en la carpeta del frontend
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.commits[0].modified, 'frontend/') ||
+      contains(github.event.commits[0].added, 'frontend/') ||
+      contains(github.event.commits[0].removed, 'frontend/')
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Login a Docker Hub (en Runner de GA)
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Desplegar Frontend en Pacheco via SSH
+        uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "Conectado a Pacheco. Desplegando Frontend desde main..."
+
+            FRONTEND_IMAGE_NAME="${{ secrets.DOCKER_USER }}/nombre_tu_frontend:latest" 
+
+            echo "Deteniendo y eliminando contenedor 'angular_frontend' existente..."
+            docker stop angular_frontend || true
+            docker rm angular_frontend || true
+
+            echo "Eliminando imagen Docker vieja del frontend (si existe)..."
+            docker rmi $FRONTEND_IMAGE_NAME || true
+
+            echo "Descargando la imagen más reciente de Docker Hub: $FRONTEND_IMAGE_NAME"
+            docker pull $FRONTEND_IMAGE_NAME
+
+            echo "Ejecutando la nueva imagen del frontend..."
+            docker run -d \
+              --name angular_frontend \
+              -p 8008:80 \
+              --network red_proyecto3 \
+              $FRONTEND_IMAGE_NAME
+
+            echo "Despliegue de Frontend completado. Verificando estado..."
+            docker ps -f name=angular_frontend
+            echo "Logs recientes de frontend:"
+            docker logs angular_frontend --tail 20

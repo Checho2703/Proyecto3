@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   db:
     image: mysql:latest
@@ -9,8 +10,6 @@ services:
     volumes:
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     expose:
       - "3306"
     networks:
@@ -20,12 +19,12 @@ services:
     build: ./backend/login-service
     container_name: login_service
     ports:
-      - "3000:3000"
+      - "50000:3000" 
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      DB_HOST: db 
+      DB_USER: root
+      DB_PASSWORD: 1234
+      DB_NAME: db_main
     depends_on:
       - db
     networks:
@@ -33,86 +32,32 @@ services:
     volumes:
       - ./archivos:/usr/src/app/archivos
 
-  upload-service:
-    build: ./backend/upload-service
-    container_name: upload_service
-    ports:
-      - "3002:3002"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - db
-    networks:
-      - red_proyecto3
-    volumes:
-      - ./archivos:/app/archivos
-
-  searchp-service:
-    build: ./backend/searchp-service
-    container_name: searchp_service
-    ports:
-      - "3001:3001"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - db
-    networks:
-      - red_proyecto3
-
-
-  list-service:
-    build: ./backend/list-service
-    container_name: list_service
-    ports:
-      - "3004:3004"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - db
-    networks:
-      - red_proyecto3
-
   frontend:
     build: ./frontend
     container_name: angular_frontend
     ports:
-      - "4200:80"
+      - "8008:80" 
     depends_on:
-      - login-service
+      - login-service 
     networks:
       - red_proyecto3
 
-  #Monitoring
-  prometheus: #Analiza host
+  prometheus:
     image: prom/prometheus
-    ports:
-      - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - red_proyecto3
 
-  grafana: # Leer datos de Prometheus
+  grafana:
     image: grafana/grafana
-    ports:
-      - "3009:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=admin123 
     depends_on:
       - prometheus
     networks:
       - red_proyecto3
 
-      
 volumes:
   db_data:
 
