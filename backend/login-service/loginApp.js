@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-
+//Comentario de prueba pa CD
 let connection;
 app.set("db", connection);
 
