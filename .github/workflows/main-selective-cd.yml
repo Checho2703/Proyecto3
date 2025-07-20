@@ -18,7 +18,34 @@ env:
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      login: ${{ steps.filter.outputs.login }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      list: ${{ steps.filter.outputs.list }}
+      upload: ${{ steps.filter.outputs.upload }}
+      searchp: ${{ steps.filter.outputs.searchp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            login:
+              - 'backend/login-service/**'
+            frontend:
+              - 'frontend/**'
+            list:
+              - 'backend/list-service/**'
+            upload:
+              - 'backend/upload-service/**'
+            searchp:
+              - 'backend/searchp-service/**'
+
   deploy-login-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.login == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +73,8 @@ jobs:
             docker-compose -f $FILE up -d --remove-orphans login-service
 
   deploy-frontend:
+    needs: check-paths
+    if: needs.check-paths.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,6 +102,8 @@ jobs:
             docker-compose -f $FILE up -d --remove-orphans frontend
 
   deploy-list-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.list == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -100,6 +131,8 @@ jobs:
             docker-compose -f $FILE up -d --remove-orphans list-service
 
   deploy-upload-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.upload == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -127,6 +160,8 @@ jobs:
             docker-compose -f $FILE up -d --remove-orphans upload-service
 
   deploy-searchp-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.searchp == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
