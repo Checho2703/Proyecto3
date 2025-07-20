@@ -4,15 +4,20 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  workflow_dispatch: # Permite la ejecución manual del workflow
 
 env:
+  # Estas variables de entorno se usan para las acciones de Docker (login, build, push)
+  # Pero para el script SSH, las inyectamos directamente con los secrets.
   DOCKER_USER: ${{ secrets.DOCKER_USER }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
+  # Job para el Login Service
   deploy-login-service:
     runs-on: ubuntu-latest
+    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el login-service
+    # o si se dispara el workflow manualmente.
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'backend/login-service/') ||
@@ -36,6 +41,11 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
 
       # -- PASO DE DESPLIEGUE DEL LOGIN-SERVICE EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Desplegar Login Service en Pacheco via SSH
         uses: appleboy/ssh-action@v1.0.1
         with:
@@ -45,29 +55,35 @@ jobs:
           script: |
             echo "Conectado a Pacheco. Desplegando Login Service con Docker Compose..."
 
+            # Asegúrate de que las credenciales de Docker Hub estén configuradas en Pacheco
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
             DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Deteniendo y eliminando el servicio 'login_service' usando Docker Compose..."
+            echo "Deteniendo y eliminando el servicio 'login-service' usando Docker Compose..."
+            # **CORREGIDO:** Usamos 'login-service' porque es el nombre del servicio en tu docker-compose.yml
+            docker-compose -f $DOCKER_COMPOSE_PATH stop login-service || true
+            docker-compose -f $DOCKER_COMPOSE_PATH rm -f login-service || true
 
-            docker-compose -f $DOCKER_COMPOSE_PATH stop login_service || true
-            docker-compose -f $DOCKER_COMPOSE_PATH rm -f login_service || true
+            echo "Descargando la imagen más reciente de 'login-service' desde Docker Hub con Compose..."
+            # **CORREGIDO:** Usamos 'login-service' para el pull de la imagen
+            docker-compose -f $DOCKER_COMPOSE_PATH pull login-service
 
-            echo "Descargando la imagen más reciente de 'login_service' desde Docker Hub con Compose..."
-            docker-compose -f $DOCKER_COMPOSE_PATH pull login_service
-
-            echo "Levantando el servicio 'login_service' con Docker Compose en modo detached..."
-            docker-compose -f $DOCKER_COMPOSE_PATH up -d login_service
+            echo "Levantando el servicio 'login-service' con Docker Compose en modo detached..."
+            # **CORREGIDO:** Usamos 'login-service' para levantar el servicio
+            docker-compose -f $DOCKER_COMPOSE_PATH up -d login-service
 
             echo "Despliegue de Login Service completado. Verificando estado en Pacheco..."
+            # Aquí sí usamos 'login_service' porque es el container_name definido para 'docker ps' y 'docker logs'
             docker ps -f name=login_service
             echo "Logs recientes de login-service en Pacheco:"
             docker logs login_service --tail 20
 
+  # Job para el Frontend
   deploy-frontend:
     runs-on: ubuntu-latest
-    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el frontend o si se dispara manualmente
+    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el frontend
+    # o si se dispara el workflow manualmente.
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'frontend/') ||
@@ -93,6 +109,11 @@ jobs:
         run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
 
       # -- PASO DE DESPLIEGUE DEL FRONTEND EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Desplegar Frontend en Pacheco via SSH
         uses: appleboy/ssh-action@v1.0.1
         with:
@@ -106,18 +127,21 @@ jobs:
 
             DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Deteniendo y eliminando el servicio 'angular_frontend' usando Docker Compose..."
+            echo "Deteniendo y eliminando el servicio 'frontend' usando Docker Compose..."
+            # **CORREGIDO:** Usamos 'frontend' porque es el nombre del servicio en tu docker-compose.yml
+            docker-compose -f $DOCKER_COMPOSE_PATH stop frontend || true
+            docker-compose -f $DOCKER_COMPOSE_PATH rm -f frontend || true
 
-            docker-compose -f $DOCKER_COMPOSE_PATH stop angular_frontend || true
-            docker-compose -f $DOCKER_COMPOSE_PATH rm -f angular_frontend || true
+            echo "Descargando la imagen más reciente de 'frontend' desde Docker Hub con Compose..."
+            # **CORREGIDO:** Usamos 'frontend' para el pull de la imagen
+            docker-compose -f $DOCKER_COMPOSE_PATH pull frontend
 
-            echo "Descargando la imagen más reciente de 'angular_frontend' desde Docker Hub con Compose..."
-            docker-compose -f $DOCKER_COMPOSE_PATH pull angular_frontend
-
-            echo "Levantando el servicio 'angular_frontend' con Docker Compose en modo detached..."
-            docker-compose -f $DOCKER_COMPOSE_PATH up -d angular_frontend
+            echo "Levantando el servicio 'frontend' con Docker Compose en modo detached..."
+            # **CORREGIDO:** Usamos 'frontend' para levantar el servicio
+            docker-compose -f $DOCKER_COMPOSE_PATH up -d frontend
 
             echo "Despliegue de Frontend completado. Verificando estado en Pacheco..."
+            # Aquí sí usamos 'angular_frontend' porque es el container_name definido para 'docker ps' y 'docker logs'
             docker ps -f name=angular_frontend
             echo "Logs recientes de frontend en Pacheco:"
             docker logs angular_frontend --tail 20
