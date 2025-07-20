@@ -53,31 +53,32 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "Conectado a Pacheco. Desplegando Login Service con Docker Compose..."
+              echo "Conectado a Pacheco. Desplegando Login Service con Docker Compose..."
 
-            # Asegúrate de que las credenciales de Docker Hub estén configuradas en Pacheco
-            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+              echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-            DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+              DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Deteniendo y eliminando el servicio 'login-service' usando Docker Compose..."
-            # **CORREGIDO:** Usamos 'login-service' porque es el nombre del servicio en tu docker-compose.yml
-            docker-compose -f $DOCKER_COMPOSE_PATH stop login-service || true
-            docker-compose -f $DOCKER_COMPOSE_PATH rm -f login-service || true
+              # Detener y remover SOLO el servicio login-service.
+              # Usamos 'docker rm -f' directamente si 'docker-compose rm' falla por algún motivo
+              echo "Deteniendo y eliminando el servicio 'login-service' y su contenedor..."
+              docker-compose -f $DOCKER_COMPOSE_PATH stop login-service || true
+              docker-compose -f $DOCKER_COMPOSE_PATH rm -f login-service || true
+              # Paso adicional para asegurar que el contenedor se elimine si persiste el conflicto
+              docker ps -aq -f name=login_service | xargs docker rm -f || true
 
-            echo "Descargando la imagen más reciente de 'login-service' desde Docker Hub con Compose..."
-            # **CORREGIDO:** Usamos 'login-service' para el pull de la imagen
-            docker-compose -f $DOCKER_COMPOSE_PATH pull login-service
 
-            echo "Levantando el servicio 'login-service' con Docker Compose en modo detached..."
-            # **CORREGIDO:** Usamos 'login-service' para levantar el servicio
-            docker-compose -f $DOCKER_COMPOSE_PATH up -d login-service
+              echo "Descargando la imagen más reciente de 'login-service' desde Docker Hub con Compose..."
+              docker-compose -f $DOCKER_COMPOSE_PATH pull login-service
 
-            echo "Despliegue de Login Service completado. Verificando estado en Pacheco..."
-            # Aquí sí usamos 'login_service' porque es el container_name definido para 'docker ps' y 'docker logs'
-            docker ps -f name=login_service
-            echo "Logs recientes de login-service en Pacheco:"
-            docker logs login_service --tail 20
+              echo "Levantando el servicio 'login-service' con Docker Compose en modo detached..."
+              # Usar --remove-orphans aquí podría ayudar si hay otros contenedores asociados que impiden el "up"
+              docker-compose -f $DOCKER_COMPOSE_PATH up -d --remove-orphans login-service
+
+              echo "Despliegue de Login Service completado. Verificando estado en Pacheco..."
+              docker ps -f name=login_service
+              echo "Logs recientes de login-service en Pacheco:"
+              docker logs login_service --tail 20
 
   # Job para el Frontend
   deploy-frontend:
@@ -121,27 +122,27 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "Conectado a Pacheco. Desplegando Frontend con Docker Compose..."
+              echo "Conectado a Pacheco. Desplegando Frontend con Docker Compose..."
 
-            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+              echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
 
-            DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+              DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
 
-            echo "Deteniendo y eliminando el servicio 'frontend' usando Docker Compose..."
-            # **CORREGIDO:** Usamos 'frontend' porque es el nombre del servicio en tu docker-compose.yml
-            docker-compose -f $DOCKER_COMPOSE_PATH stop frontend || true
-            docker-compose -f $DOCKER_COMPOSE_PATH rm -f frontend || true
+              echo "Deteniendo y eliminando el servicio 'frontend' y su contenedor..."
+              # Detener y remover SOLO el servicio frontend.
+              docker-compose -f $DOCKER_COMPOSE_PATH stop frontend || true
+              docker-compose -f $DOCKER_COMPOSE_PATH rm -f frontend || true
+              # Paso adicional para asegurar que el contenedor se elimine si persiste el conflicto
+              docker ps -aq -f name=angular_frontend | xargs docker rm -f || true
 
-            echo "Descargando la imagen más reciente de 'frontend' desde Docker Hub con Compose..."
-            # **CORREGIDO:** Usamos 'frontend' para el pull de la imagen
-            docker-compose -f $DOCKER_COMPOSE_PATH pull frontend
+              echo "Descargando la imagen más reciente de 'frontend' desde Docker Hub con Compose..."
+              docker-compose -f $DOCKER_COMPOSE_PATH pull frontend
 
-            echo "Levantando el servicio 'frontend' con Docker Compose en modo detached..."
-            # **CORREGIDO:** Usamos 'frontend' para levantar el servicio
-            docker-compose -f $DOCKER_COMPOSE_PATH up -d frontend
+              echo "Levantando el servicio 'frontend' con Docker Compose en modo detached..."
+              # Usar --remove-orphans aquí podría ayudar si hay otros contenedores asociados que impiden el "up"
+              docker-compose -f $DOCKER_COMPOSE_PATH up -d --remove-orphans frontend
 
-            echo "Despliegue de Frontend completado. Verificando estado en Pacheco..."
-            # Aquí sí usamos 'angular_frontend' porque es el container_name definido para 'docker ps' y 'docker logs'
-            docker ps -f name=angular_frontend
-            echo "Logs recientes de frontend en Pacheco:"
-            docker logs angular_frontend --tail 20
+              echo "Despliegue de Frontend completado. Verificando estado en Pacheco..."
+              docker ps -f name=angular_frontend
+              echo "Logs recientes de frontend en Pacheco:"
+              docker logs angular_frontend --tail 20
