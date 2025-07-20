@@ -7,149 +7,173 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch: # Permite la ejecución manual del workflow
+  workflow_dispatch:
 
 permissions:
-  packages: write # Permite a GitHub Actions escribir en el repositorio
-  contents: read # Permite a GitHub Actions leer el contenido del repositorio
+  packages: write
+  contents: read
 
 env:
-  # Estas variables de entorno se usan para las acciones de Docker (login, build, push)
-  # Pero para el script SSH, las inyectamos directamente con los secrets.
   DOCKER_USER: ${{ secrets.DOCKER_USER }}
   DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
-  # Job para el Login Service
   deploy-login-service:
     runs-on: ubuntu-latest
-    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el login-service
-    # o si se dispara el workflow manualmente.
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'backend/login-service/') ||
       contains(github.event.commits[0].added, 'backend/login-service/') ||
       contains(github.event.commits[0].removed, 'backend/login-service/')
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      # -- PASOS DE CONSTRUCCIÓN Y PUSH DE IMAGEN DEL LOGIN-SERVICE (EN RUNNER DE GITHUB ACTIONS) --
-      - name: Build login-service image
-        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest ./backend/login-service
-
-      - name: Login a Docker Hub (en Runner de GA)
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest ./backend/login-service
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Push login-service image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
-
-      # -- PASO DE DESPLIEGUE DEL LOGIN-SERVICE EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Desplegar Login Service en Pacheco via SSH
-        uses: appleboy/ssh-action@v1.0.1
+      - uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-              echo "Conectado a Pacheco. Desplegando Login Service con Docker Compose..."
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop login-service || true
+            docker-compose -f $FILE rm -f login-service || true
+            docker ps -aq -f name=login_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull login-service
+            docker-compose -f $FILE up -d --remove-orphans login-service
 
-              echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
-
-              DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
-
-              # Detener y remover SOLO el servicio login-service.
-              # Usamos 'docker rm -f' directamente si 'docker-compose rm' falla por algún motivo
-              echo "Deteniendo y eliminando el servicio 'login-service' y su contenedor..."
-              docker-compose -f $DOCKER_COMPOSE_PATH stop login-service || true
-              docker-compose -f $DOCKER_COMPOSE_PATH rm -f login-service || true
-              # Paso adicional para asegurar que el contenedor se elimine si persiste el conflicto
-              docker ps -aq -f name=login_service | xargs docker rm -f || true
-
-
-              echo "Descargando la imagen más reciente de 'login-service' desde Docker Hub con Compose..."
-              docker-compose -f $DOCKER_COMPOSE_PATH pull login-service
-
-              echo "Levantando el servicio 'login-service' con Docker Compose en modo detached..."
-              # Usar --remove-orphans aquí podría ayudar si hay otros contenedores asociados que impiden el "up"
-              docker-compose -f $DOCKER_COMPOSE_PATH up -d --remove-orphans login-service
-
-              echo "Despliegue de Login Service completado. Verificando estado en Pacheco..."
-              docker ps -f name=login_service
-              echo "Logs recientes de login-service en Pacheco:"
-              docker logs login_service --tail 20
-
-  # Job para el Frontend
   deploy-frontend:
     runs-on: ubuntu-latest
-    # La condición 'if' asegura que este job se ejecute cuando haya cambios en el frontend
-    # o si se dispara el workflow manualmente.
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.commits[0].modified, 'frontend/') ||
       contains(github.event.commits[0].added, 'frontend/') ||
       contains(github.event.commits[0].removed, 'frontend/')
-
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      # -- PASOS DE CONSTRUCCIÓN Y PUSH DE IMAGEN DEL FRONTEND (EN RUNNER DE GITHUB ACTIONS) --
-      - name: Build frontend image
-        # Ruta correcta a tu Dockerfile del frontend
-        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
-
-      - name: Login a Docker Hub (en Runner de GA)
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
+      - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Push frontend image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
-
-      # -- PASO DE DESPLIEGUE DEL FRONTEND EN PACHECO VIA SSH (USANDO DOCKER COMPOSE) --
-      - name: Set up SSH key
-        uses: webfactory/ssh-agent@v0.9.0
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Desplegar Frontend en Pacheco via SSH
-        uses: appleboy/ssh-action@v1.0.1
+      - uses: appleboy/ssh-action@v1.0.1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-              echo "Conectado a Pacheco. Desplegando Frontend con Docker Compose..."
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop frontend || true
+            docker-compose -f $FILE rm -f frontend || true
+            docker ps -aq -f name=angular_frontend | xargs docker rm -f || true
+            docker-compose -f $FILE pull frontend
+            docker-compose -f $FILE up -d --remove-orphans frontend
 
-              echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+  deploy-list-service:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.commits[0].modified, 'backend/list-service/') ||
+      contains(github.event.commits[0].added, 'backend/list-service/') ||
+      contains(github.event.commits[0].removed, 'backend/list-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest ./backend/list-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop list-service || true
+            docker-compose -f $FILE rm -f list-service || true
+            docker ps -aq -f name=list_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull list-service
+            docker-compose -f $FILE up -d --remove-orphans list-service
 
-              DOCKER_COMPOSE_PATH="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+  deploy-upload-service:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.commits[0].modified, 'backend/upload-service/') ||
+      contains(github.event.commits[0].added, 'backend/upload-service/') ||
+      contains(github.event.commits[0].removed, 'backend/upload-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:upload-service-latest ./backend/upload-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:upload-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop upload-service || true
+            docker-compose -f $FILE rm -f upload-service || true
+            docker ps -aq -f name=upload_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull upload-service
+            docker-compose -f $FILE up -d --remove-orphans upload-service
 
-              echo "Deteniendo y eliminando el servicio 'frontend' y su contenedor..."
-              # Detener y remover SOLO el servicio frontend.
-              docker-compose -f $DOCKER_COMPOSE_PATH stop frontend || true
-              docker-compose -f $DOCKER_COMPOSE_PATH rm -f frontend || true
-              # Paso adicional para asegurar que el contenedor se elimine si persiste el conflicto
-              docker ps -aq -f name=angular_frontend | xargs docker rm -f || true
-
-              echo "Descargando la imagen más reciente de 'frontend' desde Docker Hub con Compose..."
-              docker-compose -f $DOCKER_COMPOSE_PATH pull frontend
-
-              echo "Levantando el servicio 'frontend' con Docker Compose en modo detached..."
-              # Usar --remove-orphans aquí podría ayudar si hay otros contenedores asociados que impiden el "up"
-              docker-compose -f $DOCKER_COMPOSE_PATH up -d --remove-orphans frontend
-
-              echo "Despliegue de Frontend completado. Verificando estado en Pacheco..."
-              docker ps -f name=angular_frontend
-              echo "Logs recientes de frontend en Pacheco:"
-              docker logs angular_frontend --tail 20
+  deploy-searchp-service:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.commits[0].modified, 'backend/searchp-service/') ||
+      contains(github.event.commits[0].added, 'backend/searchp-service/') ||
+      contains(github.event.commits[0].removed, 'backend/searchp-service/')
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest ./backend/searchp-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop searchp-service || true
+            docker-compose -f $FILE rm -f searchp-service || true
+            docker ps -aq -f name=searchp_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull searchp-service
+            docker-compose -f $FILE up -d --remove-orphans searchp-service
