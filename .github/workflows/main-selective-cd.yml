@@ -9,6 +9,10 @@ on:
       - main
   workflow_dispatch: # Permite la ejecución manual del workflow
 
+permissions:
+  contents: write # Permite a GitHub Actions escribir en el repositorio
+  contents: read # Permite a GitHub Actions leer el contenido del repositorio
+
 env:
   # Estas variables de entorno se usan para las acciones de Docker (login, build, push)
   # Pero para el script SSH, las inyectamos directamente con los secrets.
