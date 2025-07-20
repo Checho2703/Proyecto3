@@ -1,4 +1,4 @@
-name: CD Selectivo a Pacheco (Desde Main)
+name: CD a Pacheco (Desde Main)
 
 on:
   push:
@@ -20,11 +20,6 @@ env:
 jobs:
   deploy-login-service:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(github.event.commits[0].modified, 'backend/login-service/') ||
-      contains(github.event.commits[0].added, 'backend/login-service/') ||
-      contains(github.event.commits[0].removed, 'backend/login-service/')
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest ./backend/login-service
@@ -52,11 +47,6 @@ jobs:
 
   deploy-frontend:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(github.event.commits[0].modified, 'frontend/') ||
-      contains(github.event.commits[0].added, 'frontend/') ||
-      contains(github.event.commits[0].removed, 'frontend/')
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
@@ -84,11 +74,6 @@ jobs:
 
   deploy-list-service:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(github.event.commits[0].modified, 'backend/list-service/') ||
-      contains(github.event.commits[0].added, 'backend/list-service/') ||
-      contains(github.event.commits[0].removed, 'backend/list-service/')
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest ./backend/list-service
@@ -116,11 +101,6 @@ jobs:
 
   deploy-upload-service:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(github.event.commits[0].modified, 'backend/upload-service/') ||
-      contains(github.event.commits[0].added, 'backend/upload-service/') ||
-      contains(github.event.commits[0].removed, 'backend/upload-service/')
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:upload-service-latest ./backend/upload-service
@@ -148,11 +128,6 @@ jobs:
 
   deploy-searchp-service:
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(github.event.commits[0].modified, 'backend/searchp-service/') ||
-      contains(github.event.commits[0].added, 'backend/searchp-service/') ||
-      contains(github.event.commits[0].removed, 'backend/searchp-service/')
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest ./backend/searchp-service
