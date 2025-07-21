@@ -1,0 +1,189 @@
+name: CD a Pacheco (Desde Main)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  packages: write
+  contents: read
+
+env:
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+
+jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    outputs:
+      login: ${{ steps.filter.outputs.login }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      list: ${{ steps.filter.outputs.list }}
+      upload: ${{ steps.filter.outputs.upload }}
+      searchp: ${{ steps.filter.outputs.searchp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            login:
+              - 'backend/login-service/**'
+            frontend:
+              - 'frontend/**'
+            list:
+              - 'backend/list-service/**'
+            upload:
+              - 'backend/upload-service/**'
+            searchp:
+              - 'backend/searchp-service/**'
+
+  deploy-login-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.login == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest ./backend/login-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:login-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop login-service || true
+            docker-compose -f $FILE rm -f login-service || true
+            docker ps -aq -f name=login_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull login-service
+            docker-compose -f $FILE up -d --remove-orphans login-service
+
+  deploy-frontend:
+    needs: check-paths
+    if: needs.check-paths.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop frontend || true
+            docker-compose -f $FILE rm -f frontend || true
+            docker ps -aq -f name=angular_frontend | xargs docker rm -f || true
+            docker-compose -f $FILE pull frontend
+            docker-compose -f $FILE up -d --remove-orphans frontend
+
+  deploy-list-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.list == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest ./backend/list-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:list-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop list-service || true
+            docker-compose -f $FILE rm -f list-service || true
+            docker ps -aq -f name=list_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull list-service
+            docker-compose -f $FILE up -d --remove-orphans list-service
+
+  deploy-upload-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.upload == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:upload-service-latest ./backend/upload-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:upload-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop upload-service || true
+            docker-compose -f $FILE rm -f upload-service || true
+            docker ps -aq -f name=upload_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull upload-service
+            docker-compose -f $FILE up -d --remove-orphans upload-service
+
+  deploy-searchp-service:
+    needs: check-paths
+    if: needs.check-paths.outputs.searchp == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest ./backend/searchp-service
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:searchp-service-latest
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+            FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
+            docker-compose -f $FILE stop searchp-service || true
+            docker-compose -f $FILE rm -f searchp-service || true
+            docker ps -aq -f name=searchp_service | xargs docker rm -f || true
+            docker-compose -f $FILE pull searchp-service
+            docker-compose -f $FILE up -d --remove-orphans searchp-service
