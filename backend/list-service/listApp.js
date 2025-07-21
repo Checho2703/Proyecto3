@@ -1,4 +1,3 @@
-// Versión JSON del código original: todos los endpoints usan POST con JSON en el body
 const express = require("express");
 const mysql = require("mysql2/promise");
 const client = require("prom-client");
@@ -7,9 +6,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-let connection;
-
-// Registro de métricas
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 
@@ -41,25 +37,82 @@ register.registerMetric(metricsAsignaturas.tiempoRespuesta);
 register.registerMetric(metricsArchivos.totalRequests);
 register.registerMetric(metricsArchivos.tiempoRespuesta);
 
-async function connectWithRetry() {
-  try {
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST || "db",
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME || "db_main",
-    });
-    console.log("\u2705 Conexión establecida con la base de datos.");
-    app.locals.db = connection;
-  } catch (err) {
-    console.error("\u274c Error al conectar con la BD. Reintentando en 5s...", err.message);
-    setTimeout(connectWithRetry, 5000);
+// Conexión BD----------------------------------------------------
+// Esta función ahora manejará los reintentos y esperará por la conexión
+async function connectToDatabase() {
+  let retries = 5; // Número de reintentos
+  while (retries > 0) {
+    try {
+      const dbConnection = await mysql.createConnection({
+        host: process.env.DB_HOST || "db",
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME || "db_main",
+      });
+      console.log("✅ Conexión establecida con la base de datos.");
+      app.locals.db = dbConnection; // Asigna la conexión a app.locals
+      return; // Sale de la función si la conexión es exitosa
+    } catch (err) {
+      retries--;
+      console.error(
+        `❌ Error al conectar con la BD. Reintentando en 5s... (${retries} intentos restantes)`,
+        err.message
+      );
+      if (retries === 0) {
+        console.error("⛔️ Fallo la conexión a la base de datos después de varios reintentos. Terminando la aplicación.");
+        process.exit(1); // Sale del proceso Node.js si falla la conexión crítica
+      }
+      // Espera 5 segundos de forma asíncrona antes de reintentar
+      await new Promise(res => setTimeout(res, 5000));
+    }
   }
 }
 
-if (process.env.NODE_ENV !== "test") {
-  connectWithRetry();
+// Nueva función para iniciar el servidor después de la conexión a la DB
+async function startServer() {
+  if (process.env.NODE_ENV !== "test") {
+    console.log("Iniciando conexión a la base de datos...");
+    await connectToDatabase(); // ¡Aquí esperamos a que la DB se conecte!
+    console.log("Base de datos conectada. Iniciando servidor Express.");
+  }
+
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);
+  });
 }
+
+// Llama a la función para iniciar todo
+startServer();
+
+// Middleware para verificar la conexión a la DB en cada request (opcional pero bueno)
+app.use((req, res, next) => {
+  if (!req.app.locals.db) {
+    console.error("Solicitud recibida pero la conexión a la base de datos no está disponible.");
+    return res.status(503).json({ error: "Servicio no disponible, la base de datos no está conectada." });
+  }
+  next();
+});
+
+// Endpoint para listar todos los establecimientos (nuevo endpoint /todo)
+app.post("/todo", async (req, res) => {
+  const end = metricsColegios.tiempoRespuesta.startTimer();
+  metricsColegios.totalRequests.inc();
+
+  try {
+    const db = req.app.locals.db;
+    const [rows] = await db.query(
+      "SELECT ID_establecimiento, Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre FROM Establecimiento"
+    );
+
+    end();
+    res.json(rows);
+  } catch (error) {
+    end();
+    console.error("❌ Error al buscar colegios:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
 
 // 1. Listar colegios por comuna
 app.post("/colegios", async (req, res) => {
@@ -75,15 +128,15 @@ app.post("/colegios", async (req, res) => {
 
     const db = req.app.locals.db;
     const [rows] = await db.query(
-      "SELECT ID_establecimiento, Nombre FROM Establecimiento WHERE Comuna = ?",
-      [comuna]
+      "SELECT ID_establecimiento, Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre FROM Establecimiento WHERE Comuna = ?",
+      [comuna] // ¡Importante! Aquí se usa la comuna para filtrar
     );
 
     end();
     res.json(rows);
   } catch (error) {
     end();
-    console.error("\u274c Error al buscar colegios:", error);
+    console.error("❌ Error al buscar colegios:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -102,7 +155,7 @@ app.post("/cursos", async (req, res) => {
 
     const db = req.app.locals.db;
     const [rows] = await db.query(
-      `SELECT C.ID_curso, C.Nombre_curso 
+      `SELECT C.ID_curso, C.Nombre_curso
        FROM Curso C
        JOIN Establecimiento E ON C.ID_establecimiento = E.ID_establecimiento
        WHERE E.Nombre = ?`,
@@ -113,7 +166,7 @@ app.post("/cursos", async (req, res) => {
     res.json(rows);
   } catch (error) {
     end();
-    console.error("\u274c Error al buscar cursos:", error);
+    console.error("❌ Error al buscar cursos:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -135,7 +188,7 @@ app.post("/asignaturas", async (req, res) => {
 
     const db = req.app.locals.db;
     const [rows] = await db.query(
-      `SELECT A.ID_asignatura, A.Nombre 
+      `SELECT A.ID_asignatura, A.Nombre
        FROM Asignatura A
        JOIN Curso_asignatura CA ON A.ID_asignatura = CA.ID_asignatura
        JOIN Curso C ON CA.ID_curso = C.ID_curso
@@ -148,7 +201,7 @@ app.post("/asignaturas", async (req, res) => {
     res.json(rows);
   } catch (error) {
     end();
-    console.error("\u274c Error al buscar asignaturas:", error);
+    console.error("❌ Error al buscar asignaturas:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -187,7 +240,7 @@ app.post("/archivos", async (req, res) => {
     res.json(rows);
   } catch (error) {
     end();
-    console.error("\u274c Error al buscar archivos:", error);
+    console.error("❌ Error al buscar archivos:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -197,7 +250,6 @@ app.get("/metrics", async (req, res) => {
   res.set("Content-Type", register.contentType);
   res.end(await register.metrics());
 });
-
 
 app.get("/", (req, res) => {
   res.send("Funciona");
