@@ -8,7 +8,7 @@ import { catchError } from 'rxjs/operators';
 })
 export class FileUploadService {
 
-  private apiUrl = '/api/upload';
+  private API_URL = '/api/upload';
 
   constructor(private http: HttpClient) {}
 
@@ -31,7 +31,7 @@ export class FileUploadService {
     formData.append('tipo', tipo);
     formData.append('descripcion', descripcion);
 
-    return this.http.post<any>(this.apiUrl, formData).pipe(
+    return this.http.post<any>(`${this.API_URL}/uploadFile`, formData).pipe(
       catchError(this.handleError)
     );
   }
