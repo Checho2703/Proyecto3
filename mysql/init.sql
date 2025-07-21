@@ -218,7 +218,7 @@ INSERT INTO Rol_usuario (Nombre_rol) VALUES
 ('Administrador'),    -- ID_rol = 1
 ('Docente'),         -- ID_rol = 2
 ('Alumno'),          -- ID_rol = 3
-('Apoderado'),       -- ID_rol = 4
+('Apoderado');       -- ID_rol = 4
 
 -- 2. Establecimientos
 INSERT INTO Establecimiento (Nombre, Tipo_establecimiento, Direccion, Comuna, Telefono, Email_contacto, Director_nombre) VALUES
@@ -233,5 +233,6 @@ INSERT INTO Usuario (Rut, Nombres, Apellido_Paterno, Apellido_Materno, Correo, C
 ('22222222-2', 'Maria', 'Lopez', 'Silva', 'maria.lopez@example.com', '1111', '922222222', 'Activo', '1980-07-20', 1, 1), -- Docente del Colegio San Juan (ID_usuario = 2)
 ('33333333-3', 'Ana', 'Martinez', 'Fuentes', 'ana.martinez@example.com', '2222', '933333333', 'Activo', '1975-11-01', 3, 1), -- Apoderado (ID_usuario = 3)
 ('44444444-4', 'Carlos', 'Gonzalez', 'Rojas', 'carlos.gonzalez@example.com', '3333', '944444444', 'Activo', '1990-04-22', 4, 1), -- Funcionario del Liceo Bicentenario (ID_usuario = 4)
-('55555555-5', 'Sofia', 'Ramirez', 'Diaz', 'sofia.ramirez@example.com', '4444', '955555555', 'Activo', '2006-09-01', 2, 1), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
+('55555555-5', 'Sofia', 'Ramirez', 'Diaz', 'sofia.ramirez@example.com', '4444', '955555555', 'Activo', '2006-09-01', 2, 1),
+('55555555-8', 'Sof', 'Rami', 'Di', 'sof.rami@example.com', '4445', '955555556', 'Activo', '2006-09-01', 2, 3), -- Alumno del Liceo Bicentenario (ID_usuario = 5)
 ('66666666-6', 'Roberto', 'Soto', 'Vega', 'roberto.soto@example.com', '0000', '966666666', 'Activo', '1978-02-10', 1, 1); -- Docente del Liceo Bicentenario (ID_usuario = 6)

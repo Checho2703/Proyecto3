@@ -10,6 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { HomeComponent } from './home/home.component';
 import { UserSearchComponent } from './user-search/user-search.component';
+import { UploadFileComponent } from './upload-file/upload-file.component';
 
 const routes: Routes = [
   { path: '', component: LoginComponent },
@@ -22,7 +23,8 @@ const routes: Routes = [
     LoginComponent,
     RegisterComponent,
     HomeComponent,
-    UserSearchComponent
+    UserSearchComponent,
+    UploadFileComponent
   ],
   imports: [
     BrowserModule,

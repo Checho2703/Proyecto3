@@ -63,4 +63,8 @@ export class HomeComponent implements OnInit {
   goToSearchP(): void {
     this.router.navigate(['/users/search']);
   }
+
+  goToUpload(): void {
+    this.router.navigate(['/upload']);
+  }
 }

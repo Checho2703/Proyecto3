@@ -1,0 +1,101 @@
+<div class="main-content-area py-4">
+    <div class="container user-search-container">
+        <div class="row justify-content-center">
+            <div class="col-12 main-content-panel">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Usuarios / Descarga de archivos</h4>
+                        <p class="card-text text-muted">Aqui pueddes subir archivos pdf, docx y mp4.</p>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <form (ngSubmit)="uploadF()" #uploadForm="ngForm" enctype="multipart/form-data" novalidate>
+                            <h5 class="card-title mb-3">Filtros para la descarga</h5>
+                            <div class="row g-3">
+
+                                <div class="col-md-3">
+                                    <label for="comunaSelect" class="form-label">Comuna:</label>
+                                    <select id="comunaSelect" class="form-select" [(ngModel)]="selectedComuna">
+                                        <option [ngValue]="null" disabled selected>Selecciona una comuna</option>
+                                        <option *ngFor="let comuna of comunas" [ngValue]="comuna">{{ comuna }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="colegioSelect" class="form-label">Colegio:</label>
+                                    <select id="colegioSelect" class="form-select" [(ngModel)]="selectedColegio">
+                                        <option [ngValue]="null" disabled selected>Selecciona un colegio</option>
+                                        <option *ngFor="let colegio of colegiosOpciones" [ngValue]="colegio">{{ colegio
+                                            }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="cursoSelect" class="form-label">Curso:</label>
+                                    <select id="cursoSelect" class="form-select" [(ngModel)]="selectedCurso">
+                                        <option [ngValue]="null" disabled selected>Selecciona un curso</option>
+                                        <option *ngFor="let curso of cursosOpciones" [ngValue]="curso">{{ curso }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="asignaturaSelect" class="form-label">Asignatura:</label>
+                                    <select id="asignaturaSelect" class="form-select" [(ngModel)]="selectedAsignatura">
+                                        <option [ngValue]="null" disabled selected>Selecciona una asignatura</option>
+                                        <option *ngFor="let asignatura of asignaturasOpciones" [ngValue]="asignatura">{{
+                                            asignatura }}</option>
+                                    </select>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="tipo" class="form-label">Tipo de archivo:</label>
+                                        <input type="text" id="tipo" [(ngModel)]="tipo" name="tipo" class="form-control"
+                                            required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="descripcion" class="form-label">Descripción:</label>
+                                        <input type="text" id="descripcion" [(ngModel)]="descripcion" name="descripcion"
+                                            class="form-control" required />
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <label for="archivo" class="form-label">Seleccionar archivo:</label>
+                                        <input type="file" id="archivo" name="archivo" (change)="onFileChange($event)"
+                                            class="form-control" required />
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                <button class="btn btn-secondary me-md-2" type="button" (click)="clearFilters()">Limpiar
+                                    filtros</button>
+                                <button class="btn btn-primary" type="submit" [disabled]="subiendoArchivo">
+                                    <span *ngIf="subiendoArchivo" class="spinner-border spinner-border-sm me-2"
+                                        role="status" aria-hidden="true"></span>
+                                    {{ subiendoArchivo ? 'Subiendo...' : 'Subir archivo' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+                    {{ errorMessage }}
+                </div>
+                <div *ngIf="noResultsMessage && !errorMessage" class="alert alert-info mt-3" role="alert">
+                    {{ noResultsMessage }}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

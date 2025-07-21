@@ -27,18 +27,12 @@ export interface UsuarioBusqueda {
     providedIn: 'root'
 })
 export class UserSearchService {
-    private apiUrl = 'http://localhost:3000'; // URL base de tu searchp-service
+    private apiUrl = '/api/searchp'; // URL base de tu searchp-service
 
     constructor(private http: HttpClient) { }
 
     private getHeaders(): HttpHeaders {
-        // Si tu searchp-service requiere autenticación (ej. token JWT),
-        // deberías añadirlo aquí.
-        // const token = localStorage.getItem('authToken');
         let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-        // if (token) {
-        //   headers = headers.set('Authorization', `Bearer ${token}`);
-        // }
         return headers;
     }
 

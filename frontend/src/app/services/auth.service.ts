@@ -11,7 +11,7 @@ export interface Establecimiento {
   providedIn: 'root'
 })
 export class AuthService {
-  private API_URL = 'http://localhost:3000';
+  private API_URL = '/api/login';
 
   constructor(private http: HttpClient) { }
 
