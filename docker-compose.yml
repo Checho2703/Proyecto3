@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   db:
     image: mysql:latest
@@ -9,23 +10,38 @@ services:
     volumes:
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"
     expose:
       - "3306"
     networks:
       - red_proyecto3
 
   login-service:
-    build: ./backend/login-service
+    image: grupomfifsl/mis-servicios:login-service-latest
     container_name: login_service
     ports:
-      - "3000:3000"
+      - "50000:3000"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      DB_HOST: mysql_db
+      DB_USER: root
+      DB_PASSWORD: 1234
+      DB_NAME: db_main
+    depends_on:
+      - db
+    networks:
+      - red_proyecto3
+    volumes:
+      - ./archivos:/usr/src/app/archivos
+
+  list-service:
+    image: grupomfifsl/mis-servicios:list-service-latest
+    container_name: list_service
+    ports:
+      - "50003:3004"
+    environment:
+      DB_HOST: mysql_db
+      DB_USER: root
+      DB_PASSWORD: 1234
+      DB_NAME: db_main
     depends_on:
       - db
     networks:
@@ -34,88 +50,77 @@ services:
       - ./archivos:/usr/src/app/archivos
 
   upload-service:
-    build: ./backend/upload-service
+    image: grupomfifsl/mis-servicios:upload-service-latest
     container_name: upload_service
     ports:
-      - "3002:3002"
+      - "50004:3002"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      DB_HOST: mysql_db
+      DB_USER: root
+      DB_PASSWORD: 1234
+      DB_NAME: db_main
     depends_on:
       - db
     networks:
       - red_proyecto3
     volumes:
-      - ./archivos:/app/archivos
+      - ./archivos:/usr/src/app/archivos
 
   searchp-service:
-    build: ./backend/searchp-service
+    image: grupomfifsl/mis-servicios:searchp-service-latest
     container_name: searchp_service
     ports:
-      - "3001:3001"
+        - "50005:3001"
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+        DB_HOST: mysql_db
+        DB_USER: root
+        DB_PASSWORD: 1234
+        DB_NAME: db_main
     depends_on:
-      - db
+        - db
     networks:
-      - red_proyecto3
+        - red_proyecto3
+    volumes:
+        - ./archivos:/usr/src/app/archivos
 
-
-  list-service:
-    build: ./backend/list-service
-    container_name: list_service
-    ports:
-      - "3004:3004"
-    environment:
-      - DB_HOST=${DB_HOST}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
-    depends_on:
-      - db
-    networks:
-      - red_proyecto3
 
   frontend:
-    build: ./frontend
+    image: grupomfifsl/mis-servicios:frontend-service-latest 
     container_name: angular_frontend
     ports:
-      - "4200:80"
+      - "8008:80"
     depends_on:
       - login-service
     networks:
       - red_proyecto3
 
-  #Monitoring
-  prometheus: #Analiza host
-    image: prom/prometheus
+  prometheus:
+    image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - "50001:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - red_proyecto3
 
-  grafana: # Leer datos de Prometheus
-    image: grafana/grafana
+  grafana:
+    image: grafana/grafana:latest
     ports:
-      - "3009:3000"
+      - "50002:3009"
+    volumes:
+      - grafana-storage:/var/lib/grafana
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SERVER_HTTP_PORT=3009
     depends_on:
       - prometheus
     networks:
       - red_proyecto3
 
-      
 volumes:
   db_data:
+  grafana-storage:
 
 networks:
   red_proyecto3:
-    driver: bridge
+    external: true
