@@ -8,7 +8,7 @@ import { catchError } from 'rxjs/operators';
 })
 export class FileUploadService {
 
-  private apiUrl = '/api/uploadFile';
+  private apiUrl = '/api/upload';
 
   constructor(private http: HttpClient) {}
 
