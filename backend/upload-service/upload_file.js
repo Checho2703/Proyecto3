@@ -4,7 +4,9 @@ const fileUpload = require("express-fileupload");
 const express = require("express");
 const mysql = require("mysql2");
 const client = require("prom-client"); // Prometheus client
+
 const cors = require("cors"); 
+
 
 //########################## Express de archivo ##############################
 const extensionesValidas = ["pdf", "docx", "mp4"];
@@ -14,6 +16,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload());
 app.use(cors());
+
+
 
 //########################## MÉTRICAS PROMETHEUS ##############################
 const register = new client.Registry();

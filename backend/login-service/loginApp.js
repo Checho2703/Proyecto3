@@ -8,11 +8,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-
 let connection;
 app.set("db", connection);
 
-//Metricas-----------------------------------------------------------------
+//Metricas-------------------------------------------------------------------
 const register = new client.Registry();
 client.collectDefaultMetrics({ register });
 

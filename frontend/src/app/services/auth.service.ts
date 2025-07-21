@@ -5,29 +5,29 @@ import { Observable } from 'rxjs';
 export interface Establecimiento {
   ID_establecimiento: number;
   Nombre: string;
-  // Puedes añadir más propiedades si las necesitas, como Tipo_establecimiento, etc.
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private API_URL = 'http://localhost:3000'; // Asegúrate de que esta URL sea correcta
 
-  constructor(private http: HttpClient) { }
+  private API_URL = '/api/login';
+
+  constructor(private http: HttpClient) {}
 
   register(data: {
-    rut: string; 
+    rut: string;
     nombres: string;
     apellido_paterno: string;
-    apellido_materno?: string | null; 
+    apellido_materno?: string | null;
     correo: string;
     contrasena: string;
-    telefono?: string | null; 
-    estado?: string; 
-    fecha_nac?: string | null; 
-    id_rol?: number | null; 
-    id_establecimiento?: number | null; 
+    telefono?: string | null;
+    estado?: string;
+    fecha_nac?: string | null;
+    id_rol?: number | null;
+    id_establecimiento?: number | null;
   }): Observable<any> {
     const payload = {
       rut: data.rut,

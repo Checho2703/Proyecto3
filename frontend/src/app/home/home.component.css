@@ -1,0 +1,89 @@
+/* src/app/home/home.component.css */
+
+/* El host del componente (<app-home>) debe ser flexible para ocupar el espacio central */
+:host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    /* Esto le permite ocupar el espacio entre la navbar y el footer */
+}
+
+/* Contenedor principal del contenido */
+.main-content-area {
+    flex: 1;
+    /* Ocupa el espacio restante disponible dentro del componente */
+    background-color: var(--light-bg-color);
+    /* Fondo del área de contenido */
+    /* Importante: padding-top para que el contenido no se oculte debajo de la navbar fija */
+    padding-top: calc(var(--navbar-height) + 1.5rem);
+    /* Altura de la navbar + padding */
+    padding-bottom: 1.5rem;
+    /* Padding en la parte inferior */
+}
+
+/* Estilos específicos de la barra lateral */
+.sidebar-panel {
+    background-color: #ffffff;
+    /* Fondo blanco para el panel lateral */
+    border-right: 1px solid var(--card-border-color);
+    /* Separador visual */
+    padding: 1rem;
+}
+
+.sidebar-panel .list-group-item {
+    border: none;
+    /* Eliminar bordes de los items de la lista si no son necesarios */
+    padding-left: 0;
+    /* Quitar padding por defecto si molesta */
+    padding-right: 0;
+}
+
+.sidebar-panel .list-group-item a {
+    color: var(--primary-blue);
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+
+.sidebar-panel .list-group-item a:hover {
+    color: var(--secondary-blue);
+    text-decoration: none;
+    /* Mantener la consistencia con Bootstrap */
+}
+
+/* Estilos para el panel principal de contenido */
+.main-content-panel {
+    padding-left: 1.5rem;
+    /* Separación de la barra lateral */
+}
+
+/* Estilos para las tarjetas de características (Cursos, Notas, etc.) */
+.feature-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    /* Sombra más pronunciada */
+}
+
+/* Media Queries para responsividad */
+@media (max-width: 767.98px) {
+    .main-content-area {
+        padding-top: calc(var(--navbar-height) + 1rem);
+        /* Reduce padding en móviles */
+        padding-bottom: 1rem;
+    }
+
+    .col-md-3.d-none.d-md-block {
+        display: none !important;
+        /* Asegura que la sidebar se oculte en móviles */
+    }
+
+    .main-content-panel {
+        padding-left: 0.75rem;
+        /* Ajusta padding para el panel principal en móviles */
+        padding-right: 0.75rem;
+    }
+}

@@ -1,1 +1,114 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.css */
+
+/* Variables CSS para toda la aplicación */
+:root {
+    --primary-blue: #007bff;
+    --secondary-blue: #0056b3;
+    --light-bg-color: #f8f9fa;
+    /* Color de fondo general para el contenido */
+    --card-border-color: #e9ecef;
+    --text-dark: #343a40;
+    --success-light-bg: #d4edda;
+    --success-dark-text: #155724;
+    --navbar-height: 56px;
+    /* Altura estándar de la navbar de Bootstrap. Ajusta si tu navbar tiene una altura diferente. */
+    --footer-height: 60px;
+    /* Altura estimada de tu footer */
+}
+
+/* Base HTML y Body para el layout flexbox */
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    /* Fuente más moderna */
+    color: var(--text-dark);
+    /* Color de texto por defecto */
+}
+
+/* El componente raíz de Angular (<app-root>) debe expandirse */
+app-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    /* Asegura que ocupe al menos toda la altura de la vista */
+    background-color: var(--light-bg-color);
+    /* Fondo global de la aplicación */
+}
+
+/* Estilos para el footer (si se movió a app.component.html) */
+/* Si ya definiste bg-dark en el HTML, el color de fondo estará ahí */
+.footer {
+    width: 100%;
+    background-color: #343a40;
+    /* Un gris oscuro para el footer, similar a bg-dark de Bootstrap */
+    color: white;
+    padding: 1rem 0;
+    margin-top: auto;
+    /* Empuja el footer hacia abajo */
+    z-index: 999;
+    /* Asegura que esté por debajo de la navbar si es necesario */
+}
+
+/* Estilos de la navbar (Bootstrap fixed-top maneja la mayoría del posicionamiento) */
+.navbar {
+    z-index: 1000;
+    /* Asegura que la navbar esté por encima de todo */
+    /* El color de fondo y sombra ya están en el HTML con clases de Bootstrap */
+}
+
+/* Estilos generales para las tarjetas (cards) para consistencia */
+.card {
+    border-radius: 0.75rem;
+    border: 1px solid var(--card-border-color);
+    background-color: #ffffff;
+    /* Fondo blanco para las tarjetas */
+}
+
+.card-header {
+    border-bottom: 1px solid var(--card-border-color);
+    background-color: #ffffff;
+    padding: 1rem 1.25rem;
+    /* Ajuste de padding para cabeceras de tarjeta */
+}
+
+.card-title {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Estilos para los mensajes de alerta (si los tienes) */
+.alert {
+    padding: 0.75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+/* Estilos para los botones de información (si los tienes en el tema) */
+.btn-info {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: var(--secondary-blue);
+    border-color: var(--secondary-blue);
+}

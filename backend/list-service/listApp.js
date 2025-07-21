@@ -2,10 +2,12 @@
 const express = require("express");
 const mysql = require("mysql2/promise");
 const client = require("prom-client");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 let connection;
 
