@@ -18,8 +18,6 @@ services:
   login-service:
     image: grupomfifsl/mis-servicios:login-service-latest
     container_name: login_service
-    ports:
-      - "50000:3000"
     environment:
       DB_HOST: mysql_db
       DB_USER: root
@@ -35,8 +33,6 @@ services:
   list-service:
     image: grupomfifsl/mis-servicios:list-service-latest
     container_name: list_service
-    ports:
-      - "50003:3004"
     environment:
       DB_HOST: mysql_db
       DB_USER: root
@@ -52,8 +48,6 @@ services:
   upload-service:
     image: grupomfifsl/mis-servicios:upload-service-latest
     container_name: upload_service
-    ports:
-      - "50004:3002"
     environment:
       DB_HOST: mysql_db
       DB_USER: root
@@ -69,30 +63,44 @@ services:
   searchp-service:
     image: grupomfifsl/mis-servicios:searchp-service-latest
     container_name: searchp_service
-    ports:
-        - "50005:3001"
     environment:
-        DB_HOST: mysql_db
-        DB_USER: root
-        DB_PASSWORD: 1234
-        DB_NAME: db_main
+      DB_HOST: mysql_db
+      DB_USER: root
+      DB_PASSWORD: 1234
+      DB_NAME: db_main
     depends_on:
-        - db
+      - db
     networks:
-        - red_proyecto3
+      - red_proyecto3
     volumes:
-        - ./archivos:/usr/src/app/archivos
+      - ./archivos:/usr/src/app/archivos
+
+  nginx:
+    build:
+      context: ./nginx 
+      dockerfile: Dockerfile
+    image: grupomfifsl/mis-servicios:nginx-frontend-latest 
+    container_name: nginx_proxy
+    ports:
+      - "8008:80" 
+    depends_on:
+      - login-service
+      - list-service
+      - upload-service
+      - searchp-service
+    networks:
+      - red_proyecto3
 
 
   frontend:
-    image: grupomfifsl/mis-servicios:frontend-service-latest 
+    image: grupomfifsl/mis-servicios:frontend-service-latest
     container_name: angular_frontend
-    ports:
-      - "8008:80"
+
     depends_on:
-      - login-service
+      - login-service 
     networks:
       - red_proyecto3
+
 
   prometheus:
     image: prom/prometheus:latest
