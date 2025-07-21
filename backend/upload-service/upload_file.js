@@ -140,7 +140,7 @@ function guardarDatosPDF(connection, datosArchivos, callback) {
 
 //########################### HTTP #################################
 
-app.post("/uploadFile", async (req, res) => {
+app.post("/api/uploadFile", async (req, res) => {
     const end = tiempoRespuestaUpload.startTimer();
     totalUploadRequests.inc();
 
