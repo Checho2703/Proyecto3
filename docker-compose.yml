@@ -18,6 +18,7 @@ services:
   login-service:
     image: grupomfifsl/mis-servicios:login-service-latest
     container_name: login_service
+
     environment:
       DB_HOST: mysql_db
       DB_USER: root

@@ -36,7 +36,6 @@ jobs:
               - 'backend/login-service/**'
             frontend:
               - 'frontend/**'
-              - 'nginx/**' # Añadir 'nginx/**' para que los cambios en Nginx también disparen el despliegue del frontend/Nginx
             list:
               - 'backend/list-service/**'
             upload:
@@ -73,41 +72,18 @@ jobs:
             docker-compose -f $FILE pull login-service
             docker-compose -f $FILE up -d --remove-orphans login-service
 
-  # Este job ahora construirá la aplicación Angular y luego la imagen de Nginx con el frontend
-  deploy-nginx-with-frontend: # Renombrado para mayor claridad
+  deploy-frontend:
     needs: check-paths
     if: needs.check-paths.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # 1. Construir la aplicación Angular
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18' # Asegúrate de que esta versión coincida con la de tu proyecto Angular
-      - name: Install Angular dependencies
-        run: npm install
-        working-directory: ./frontend
-      - name: Build Angular application
-        # Compila Angular y coloca la salida en la carpeta 'nginx/app/dist'
-        # que será copiada por el Dockerfile de Nginx.
-        run: npm run build -- --output-path ../nginx/app/dist
-        working-directory: ./frontend
-
-      # 2. Construir la imagen de Nginx con el frontend
-      - name: Build Nginx with Frontend image
-        run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:nginx-frontend-latest ./nginx # Construye la imagen personalizada de Nginx
-
-      # 3. Iniciar sesión y empujar la imagen de Nginx
+      - run: docker build -t ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest ./frontend
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
-      - name: Push Nginx with Frontend image
-        run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:nginx-frontend-latest
-
-      # 4. Desplegar en el servidor remoto (detener, remover, pull y levantar Nginx)
+      - run: docker push ${{ secrets.DOCKER_USER }}/mis-servicios:frontend-service-latest
       - uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -119,17 +95,11 @@ jobs:
           script: |
             echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
             FILE="/home/sergiolara2101/proyecto-final-v1/docker-compose.yml"
-            # Detener y remover el contenedor Nginx existente
-            docker-compose -f $FILE stop nginx || true
-            docker-compose -f $FILE rm -f nginx || true
-            docker ps -aq -f name=nginx_proxy | xargs docker rm -f || true
-            # Pull de la nueva imagen personalizada de Nginx
-            docker-compose -f $FILE pull nginx
-            # Levantar solo el servicio Nginx (otros servicios se manejan en sus propios deploys)
-            docker-compose -f $FILE up -d --remove-orphans nginx
-
-  # Los demás jobs de despliegue de servicios de backend (list, upload, searchp)
-  # no necesitan cambios, ya que su configuración de red interna sigue siendo la misma.
+            docker-compose -f $FILE stop frontend || true
+            docker-compose -f $FILE rm -f frontend || true
+            docker ps -aq -f name=angular_frontend | xargs docker rm -f || true
+            docker-compose -f $FILE pull frontend
+            docker-compose -f $FILE up -d --remove-orphans frontend
 
   deploy-list-service:
     needs: check-paths
