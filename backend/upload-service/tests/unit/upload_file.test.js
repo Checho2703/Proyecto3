@@ -15,7 +15,7 @@ beforeEach(() => {
 const fakePdf = Buffer.from('%PDF-1.4\nMock PDF content', 'utf-8');
 
 test('✅ se guardó con éxito el archivo', async () => {
-    const response = await request(app).post('/api/uploadFile')
+    const response = await request(app).post('/uploadFile')
         .field('comuna', 'Santiago')
         .field('colegio', 'ColegioX')
         .field('curso', '4A')
@@ -35,7 +35,7 @@ test('✅ se guardó con éxito el archivo', async () => {
 });
 
 test('❌ error no se selecciono archivo', async () => {
-    const response = await request(app).post('/api/uploadFile')
+    const response = await request(app).post('/uploadFile')
         .field('comuna', 'Santiago')
         .field('colegio', 'ColegioX')
         .field('curso', '4A')
@@ -52,7 +52,7 @@ test('❌ error no se selecciono archivo', async () => {
 });
 
 test('❌ error extensión no válida', async () => {
-    const response = await request(app).post('/api/uploadFile')
+    const response = await request(app).post('/uploadFile')
         .field('comuna', 'Santiago')
         .field('colegio', 'ColegioX')
         .field('curso', '4A')
