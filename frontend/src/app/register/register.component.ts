@@ -33,14 +33,14 @@ export class RegisterComponent implements OnInit {
 
   loadEstablecimientos() {
     this.auth.getEstablecimientos().subscribe({
-      next: (data) => {
+      next: (data: Establecimiento[]) => {
         this.establecimientos = data;
         // Opcional: Si quieres pre-seleccionar el primer establecimiento o un valor por defecto
         // if (this.establecimientos.length > 0) {
         //   this.id_establecimiento = this.establecimientos[0].ID_establecimiento;
         // }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al cargar establecimientos:', err);
         this.errorMessage = 'No se pudieron cargar los establecimientos.';
       }
@@ -72,7 +72,7 @@ export class RegisterComponent implements OnInit {
     };
 
     this.auth.register(userData).subscribe({
-      next: (response) => {
+      next: (response: any) => {
         console.log('Registro exitoso:', response);
         setTimeout(() => {
           this.successMessage = '¡Registro exitoso!'; // Mensaje de éxito
@@ -80,7 +80,7 @@ export class RegisterComponent implements OnInit {
         }, 2000); // Mostrar mensaje de éxito por 2 segundos
         this.clearForm(); // Limpiar el formulario
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error al registrar usuario:', error);
         setTimeout(() => {
           this.successMessage = ''; // Limpiar cualquier mensaje de éxito anterior

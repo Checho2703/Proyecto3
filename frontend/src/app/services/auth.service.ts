@@ -11,7 +11,7 @@ export interface Establecimiento {
   providedIn: 'root'
 })
 export class AuthService {
-  // Nginx reescribirá correctamente /api/login/*
+
   private API_URL = '/api/login';
 
   constructor(private http: HttpClient) {}

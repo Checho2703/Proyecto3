@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserSearchService, UsuarioBusqueda } from '../services/user-search.service';
+import { UserSearchService, UsuarioBusqueda } from '../services/search.service';
 
 @Component({
   selector: 'app-user-search',
@@ -9,12 +9,55 @@ import { UserSearchService, UsuarioBusqueda } from '../services/user-search.serv
 export class UserSearchComponent implements OnInit {
 
   // Opciones para los selectores (hardcodeadas, ya que searchp-service no los provee)
-  comunas: string[] = ['Santiago', 'Providencia', 'Ñuñoa', 'Las Condes', 'Chillán', 'Valparaíso', 'Concepción'];
-  // Para Colegio, Curso, Asignatura:
-  // Podrías tener listas más extensas o categorías si tuvieras los IDs o un mapeo.
-  // Por ahora, para simplificar y dado que el servicio espera el nombre, usamos nombres.
-  colegiosOpciones: string[] = ['Colegio A', 'Colegio B', 'Liceo C', 'Instituto D'];
-  cursosOpciones: string[] = ['1ro Básico', '5to Básico', '8vo Básico', '1ro Medio', '4to Medio'];
+  comunas: string[] = [
+    'Santiago',
+    'Providencia',
+    'Ñuñoa',
+    'Las Condes',
+    'Cerrillos',
+    'Cerro Navia',
+    'Conchalí',
+    'El Bosque',
+    'Estación Central',
+    'Huechuraba',
+    'Independencia',
+    'La Cisterna',
+    'La Florida',
+    'La Granja',
+    'La Pintana',
+    'La Reina',
+    'Lo Barnechea',
+    'Lo Espejo',
+    'Lo Prado',
+    'Macul',
+    'Maipú',
+    'Pedro Aguirre Cerda',
+    'Peñalolén',
+    'Pudahuel',
+    'Quilicura',
+    'Quinta Normal',
+    'Recoleta',
+    'Renca',
+    'San Joaquín',
+    'San Miguel',
+    'San Ramón',
+    'Vitacura'
+  ];
+  colegiosOpciones: string[] = ['Colegio San Juan', 'Liceo Bicentenario', 'Escuela Basica El Sol', 'Instituto Tecnologico'];
+  cursosOpciones: string[] = [
+    '1ro Básico',
+    '2do Básico',
+    '3ro Básico',
+    '4to Básico',
+    '5to Básico',
+    '6to Básico',
+    '7mo Básico',
+    '8vo Básico',
+    '1ro Medio',
+    '2do Medio',
+    '3ro Medio',
+    '4to Medio'
+  ];
   asignaturasOpciones: string[] = ['Matemáticas', 'Lenguaje', 'Historia', 'Ciencias Naturales', 'Educación Física'];
 
 
@@ -33,20 +76,17 @@ export class UserSearchComponent implements OnInit {
 
   constructor(private userSearchService: UserSearchService) { }
 
-  ngOnInit(): void {
-    // Al iniciar, si quieres que se muestren todos los usuarios, podrías llamar a searchUsers() sin criterios
-    // this.searchUsers(); // Descomentar si quieres una carga inicial de todos los usuarios
-  }
+  ngOnInit(): void {}
 
   searchUsers(): void {
     this.errorMessage = null;
     this.noResultsMessage = null;
-    this.usuariosEncontrados = []; // Limpiar resultados anteriores
+    this.usuariosEncontrados = []; 
 
     // Construir los criterios de búsqueda dinámicamente
     const criteria: { comuna?: string, colegio?: string, curso?: string, asignatura?: string, rut?: string } = {};
 
-    if (this.rutBusqueda.trim()) { // .trim() para limpiar espacios en blanco
+    if (this.rutBusqueda.trim()) { 
       criteria.rut = this.rutBusqueda.trim();
     }
     if (this.selectedComuna) {
@@ -70,20 +110,20 @@ export class UserSearchComponent implements OnInit {
 
     this.loadingSearch = true;
     this.userSearchService.buscarUsuarios(criteria).subscribe({
-      next: (data) => {
+      next: (data: UsuarioBusqueda[]) => {
         this.usuariosEncontrados = data;
         this.loadingSearch = false;
         if (this.usuariosEncontrados.length === 0) {
           this.noResultsMessage = 'No se encontraron usuarios con los criterios seleccionados.';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error al buscar usuarios:', err);
         this.errorMessage = err.message || 'Error al buscar usuarios. Inténtelo de nuevo.';
         this.loadingSearch = false;
-        if (err.message.includes("Usuario no encontrado")) { // Manejar el 404 específico del backend
+        if (err.message.includes("Usuario no encontrado")) {
             this.noResultsMessage = err.message;
-            this.errorMessage = null; // No mostrarlo como error general si es un "no encontrado"
+            this.errorMessage = null;
         }
       }
     });

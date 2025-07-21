@@ -82,9 +82,10 @@
                     <div class="col-md-4 mb-3" *ngIf="isAdministrator">
                         <div class="card feature-card shadow-sm h-100 text-center">
                             <div class="card-body">
-                                <h5 class="card-title">Configuración sistema</h5>
-                                <p class="card-text text-muted">Entra al apartado de configuración del sistema.</p>
-                                <button class="btn btn-info btn-sm" routerLink="/configuracion">Ir a Configurar</button>
+                                <h5 class="card-title">Subir archivos</h5>
+                                <p class="card-text text-muted">Abre ventana de para subir archivos.</p>
+                                <button class="btn btn-info btn-sm" (click)="goToUpload()">Subir Archivo</button>
+
                             </div>
                         </div>
                     </div>
